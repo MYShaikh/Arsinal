@@ -10,6 +10,7 @@ router.register('recents', views.RecentSearchViewSet, basename='recent')
 urlpatterns = [
     path('health/', views.health),
     path('config/', views.config),
+    path('nuclear/', views.nuclear_plants),
     path('recents/clear/', views.RecentSearchViewSet.as_view({'delete': 'clear'})),
     *router.urls,
 ]

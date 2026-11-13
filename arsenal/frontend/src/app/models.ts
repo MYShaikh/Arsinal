@@ -12,6 +12,8 @@ export const CATEGORIES: { value: Category; label: string; color: string }[] = [
 export interface PlaceInfo {
   name: string;
   address: string;
+  /** One line of extra context, e.g. operator and capacity for a nuclear power plant. */
+  description?: string;
   lat: number;
   lng: number;
   placeId?: string;
@@ -22,6 +24,15 @@ export interface PlaceInfo {
   photoUrl?: string;
   openNow?: boolean;
   hours?: string[];
+}
+
+export interface NuclearPlant {
+  id: string;
+  name: string;
+  operator: string;
+  capacity_mw: number | null;
+  lat: number;
+  lng: number;
 }
 
 export interface SavedPlace {

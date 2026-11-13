@@ -63,3 +63,54 @@ describe('PlacesStore', () => {
     expect(store.savedMatch({ name: 'x', address: '', lat: 5, lng: 5, placeId: 'other' })).toBeUndefined();
   });
 });
+
+describe('Live location', () => {
+  let onPosition: PositionCallback;
+  const clearWatch = vi.fn();
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        watchPosition: (success: PositionCallback) => {
+          onPosition = success;
+          return 7;
+        },
+        clearWatch,
+      },
+    });
+  });
+
+  const fix = (lat: number, lng: number) =>
+    onPosition({ coords: { latitude: lat, longitude: lng, accuracy: 10 } } as GeolocationPosition);
+
+  it('tracks position updates, then stops on the next press while following', () => {
+    const maps = TestBed.inject(MapService);
+    maps.locateMe();
+    expect(maps.locating()).toBe(true);
+
+    fix(1, 2);
+    expect(maps.tracking()).toBe(true);
+    expect(maps.following()).toBe(true);
+    expect(maps.userLocation()).toEqual({ lat: 1, lng: 2 });
+
+    fix(3, 4);
+    expect(maps.userLocation()).toEqual({ lat: 3, lng: 4 });
+
+    maps.locateMe();
+    expect(clearWatch).toHaveBeenCalledWith(7);
+    expect(maps.tracking()).toBe(false);
+  });
+
+  it('re-centres instead of stopping when the user has panned away', () => {
+    const maps = TestBed.inject(MapService);
+    maps.locateMe();
+    fix(1, 2);
+    maps.following.set(false); // what dragging the map does
+
+    maps.locateMe();
+    expect(maps.tracking()).toBe(true);
+    expect(maps.following()).toBe(true);
+  });
+});

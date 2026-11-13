@@ -49,3 +49,31 @@ class ConfigTests(APITestCase):
 
     def test_health(self):
         self.assertEqual(self.client.get('/api/health/').data['app'], 'arsenal')
+
+
+class NuclearTests(APITestCase):
+    def test_capacity_units(self):
+        from .nuclear import parse_capacity_mw
+
+        self.assertEqual(parse_capacity_mw('1.2 GW'), 1200)
+        self.assertEqual(parse_capacity_mw('900 MW'), 900)
+        self.assertEqual(parse_capacity_mw('1200000000'), 1200)
+        self.assertIsNone(parse_capacity_mw('yes'))
+
+    def test_parse_elements_skips_research_sites_and_missing_output(self):
+        from .nuclear import parse_elements
+
+        plants = parse_elements([
+            {'type': 'node', 'id': 1, 'lat': 1.0, 'lon': 2.0, 'tags': {'name': 'Real', 'plant:output:electricity': '1 GW'}},
+            {'type': 'way', 'id': 2, 'center': {'lat': 3.0, 'lon': 4.0}, 'tags': {'plant:output:electricity': 'yes'}},
+            {'type': 'node', 'id': 3, 'lat': 5.0, 'lon': 6.0, 'tags': {'name': 'No output'}},
+            {'type': 'node', 'id': 4, 'lat': 7.0, 'lon': 8.0, 'tags': {'name': 'Science Center', 'plant:output:electricity': '1 MW'}},
+        ])
+        self.assertEqual([p['id'] for p in plants], ['way/2', 'node/1'])
+        self.assertIsNone(plants[0]['capacity_mw'])
+        self.assertEqual(plants[1]['capacity_mw'], 1000)
+
+    def test_endpoint_serves_snapshot(self):
+        data = self.client.get('/api/nuclear/').data
+        self.assertGreater(len(data), 150)
+        self.assertEqual(set(data[0]), {'id', 'name', 'operator', 'capacity_mw', 'lat', 'lng'})

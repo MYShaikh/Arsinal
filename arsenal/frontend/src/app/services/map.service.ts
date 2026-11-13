@@ -4,6 +4,9 @@ import { firstValueFrom } from 'rxjs';
 
 import { API_BASE } from '../config';
 import { CATEGORIES, MapType, PlaceInfo, RouteInfo, SavedPlace, Suggestion, TravelMode } from '../models';
+import { MapMarker, MarkerFactory, createMarkerFactory, pinContent, userDotContent } from './html-marker';
+import { LayersService } from './layers.service';
+import { DARK_THEME, HIDE_DEFAULT_PLACES } from './map-style';
 import { PlacesStore } from './places.store';
 import { ToastService } from './toast.service';
 
@@ -21,12 +24,31 @@ const PLACE_FIELDS = [
   'regularOpeningHours',
 ];
 
+const GOOGLE_ERRORS: Record<string, string> = {
+  InvalidKeyMapError: 'The API key is not valid. Maps keys start with "AIza"; create one under APIs & Services → Credentials.',
+  ApiNotActivatedMapError: 'Maps JavaScript API is not enabled for this key. Enable it in APIs & Services → Library.',
+  BillingNotEnabledMapError: 'Billing is not enabled on the key\'s Google Cloud project. Link a billing account.',
+  RefererNotAllowedMapError: 'This website is not allowed for the key. Add http://localhost:4200/* under its website restrictions.',
+  MissingKeyMapError: 'No API key was sent to Google.',
+  ExpiredKeyMapError: 'The API key has expired.',
+  RequestDeniedMapError: 'Google denied the request. Check the key\'s API restrictions include Maps JavaScript API.',
+};
+
+function describeGoogleError(code: string): string {
+  const hint = GOOGLE_ERRORS[code];
+  if (hint) return `${hint} (${code})`;
+  return code
+    ? `Google rejected the API key (${code}).`
+    : 'Google rejected the API key. Check the key, its allowed websites and that billing is enabled.';
+}
+
 /** Owns the Google Maps instance and everything drawn on it. */
 @Injectable({ providedIn: 'root' })
 export class MapService {
   private readonly http = inject(HttpClient);
   private readonly store = inject(PlacesStore);
   private readonly toast = inject(ToastService);
+  private readonly layers = inject(LayersService);
 
   readonly status = signal<MapStatus>('loading');
   readonly errorDetail = signal('');
@@ -35,22 +57,29 @@ export class MapService {
   readonly mapType = signal<MapType>('roadmap');
   readonly traffic = signal(false);
   readonly locating = signal(false);
+  /** Watching the user's position, so the blue dot moves as they do. */
+  readonly tracking = signal(false);
+  /** The map re-centres on every position update. Dragging the map turns this off. */
+  readonly following = signal(false);
   readonly userLocation = signal<google.maps.LatLngLiteral | null>(null);
 
   private map?: google.maps.Map;
   private mapsLib?: google.maps.MapsLibrary;
   private placesLib?: google.maps.PlacesLibrary;
   private routesLib?: google.maps.RoutesLibrary;
-  private markerLib?: google.maps.MarkerLibrary;
   private geocodingLib?: google.maps.GeocodingLibrary;
 
-  private selectedMarker?: google.maps.marker.AdvancedMarkerElement;
-  private userMarker?: google.maps.marker.AdvancedMarkerElement;
-  private savedMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+  private createMarker?: MarkerFactory;
+  private selectedMarker?: MapMarker;
+  private userMarker?: MapMarker;
+  private accuracyCircle?: google.maps.Circle;
+  private watchId?: number;
+  private savedMarkers: MapMarker[] = [];
   private trafficLayer?: google.maps.TrafficLayer;
   private routeLines: google.maps.Polyline[] = [];
   private sessionToken?: google.maps.places.AutocompleteSessionToken;
   private started = false;
+  private googleErrorCode = '';
 
   constructor() {
     effect(() => {
@@ -78,19 +107,18 @@ export class MapService {
 
     try {
       await this.loadScript(key);
-      [this.mapsLib, this.placesLib, this.routesLib, this.markerLib, this.geocodingLib] = (await Promise.all([
+      [this.mapsLib, this.placesLib, this.routesLib, this.geocodingLib] = (await Promise.all([
         google.maps.importLibrary('maps'),
         google.maps.importLibrary('places'),
         google.maps.importLibrary('routes'),
-        google.maps.importLibrary('marker'),
         google.maps.importLibrary('geocoding'),
       ])) as [
         google.maps.MapsLibrary,
         google.maps.PlacesLibrary,
         google.maps.RoutesLibrary,
-        google.maps.MarkerLibrary,
         google.maps.GeocodingLibrary,
       ];
+      this.createMarker = createMarkerFactory();
     } catch (e) {
       this.fail(e instanceof Error ? e.message : 'Google Maps failed to load.');
       return;
@@ -100,13 +128,13 @@ export class MapService {
     this.map = new this.mapsLib.Map(container, {
       center: { lat: 30, lng: 0 },
       zoom: 3,
-      // A mapId is required for advanced markers. DEMO_MAP_ID is Google's placeholder for development.
-      mapId: 'DEMO_MAP_ID',
-      colorScheme: dark ? google.maps.ColorScheme.DARK : google.maps.ColorScheme.LIGHT,
+      // No mapId: JSON styles only apply to maps without one. See map-style.ts.
+      styles: dark ? [...DARK_THEME, ...HIDE_DEFAULT_PLACES] : HIDE_DEFAULT_PLACES,
       disableDefaultUI: true,
       gestureHandling: 'greedy',
-      clickableIcons: true,
+      clickableIcons: false,
     });
+    this.map.addListener('dragstart', () => this.following.set(false));
     this.map.addListener('click', (e: google.maps.MapMouseEvent | google.maps.IconMouseEvent) => {
       const placeId = (e as google.maps.IconMouseEvent).placeId;
       if (placeId) {
@@ -119,6 +147,13 @@ export class MapService {
 
     this.status.set('ready');
     this.drawSavedMarkers(this.store.saved());
+    void this.layers.attach({
+      map: this.map,
+      places: this.placesLib,
+      createMarker: this.createMarker,
+      select: (place) => this.show(place),
+      selectById: (placeId) => void this.selectPlaceId(placeId),
+    });
     void this.locateIfAlreadyAllowed();
   }
 
@@ -170,7 +205,7 @@ export class MapService {
 
   clearSelection() {
     this.selected.set(null);
-    if (this.selectedMarker) this.selectedMarker.map = null;
+    this.selectedMarker?.setMap(null);
   }
 
   async selectPlaceId(placeId: string) {
@@ -222,7 +257,66 @@ export class MapService {
     this.traffic.set(on);
   }
 
-  /** Centres the map on the user. Returns the position, or null if it was denied. */
+  /**
+   * Location button behaviour. First press starts live tracking and follows the user.
+   * If the user has panned away, a press re-centres on them; a press while following stops tracking.
+   */
+  locateMe() {
+    if (!this.tracking()) {
+      this.startTracking();
+    } else if (!this.following()) {
+      const here = this.userLocation();
+      this.following.set(true);
+      if (here) this.focus(here.lat, here.lng, 16);
+    } else {
+      this.stopTracking();
+    }
+  }
+
+  startTracking() {
+    if (this.tracking() || this.locating()) return;
+    if (!navigator.geolocation) {
+      this.toast.show('This browser does not support location.');
+      return;
+    }
+    this.locating.set(true);
+    this.watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (!this.tracking()) {
+          this.tracking.set(true);
+          this.following.set(true);
+        }
+        this.locating.set(false);
+        this.userLocation.set(here);
+        this.drawUserMarker(here, pos.coords.accuracy);
+        if (this.following()) this.focus(here.lat, here.lng, 16);
+      },
+      (err) => {
+        this.stopTracking();
+        this.toast.show(
+          err.code === err.PERMISSION_DENIED
+            ? 'Location is blocked. Allow it in the browser\'s site settings and try again.'
+            : 'Could not get your location right now.',
+        );
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
+    );
+  }
+
+  stopTracking() {
+    if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId);
+    this.watchId = undefined;
+    this.tracking.set(false);
+    this.following.set(false);
+    this.locating.set(false);
+    this.userMarker?.setMap(null);
+    this.userMarker = undefined;
+    this.accuracyCircle?.setMap(null);
+    this.accuracyCircle = undefined;
+  }
+
+  /** One-off position lookup, used by directions. Centres the map on the user. */
   async locate(): Promise<google.maps.LatLngLiteral | null> {
     if (!navigator.geolocation) {
       this.toast.show('This browser does not support location.');
@@ -313,55 +407,64 @@ export class MapService {
   }
 
   private placeSelectedMarker(place: PlaceInfo) {
-    if (!this.map || !this.markerLib) return;
+    if (!this.map || !this.createMarker) return;
     const position = { lat: place.lat, lng: place.lng };
-    if (!this.selectedMarker) {
-      this.selectedMarker = new this.markerLib.AdvancedMarkerElement({ map: this.map, position, zIndex: 10 });
-    }
-    this.selectedMarker.position = position;
-    this.selectedMarker.title = place.name;
-    this.selectedMarker.map = this.map;
+    this.selectedMarker?.setMap(null);
+    this.selectedMarker = this.createMarker({
+      position,
+      content: pinContent('#ea4335'),
+      anchor: 'bottom',
+      title: place.name,
+      zIndex: 10,
+    });
+    this.selectedMarker.setMap(this.map);
   }
 
   private drawSavedMarkers(saved: SavedPlace[]) {
-    if (!this.map || !this.markerLib) return;
-    this.savedMarkers.forEach((m) => (m.map = null));
+    if (!this.map || !this.createMarker) return;
+    this.savedMarkers.forEach((m) => m.setMap(null));
     this.savedMarkers = saved.map((s) => {
       const color = CATEGORIES.find((c) => c.value === s.category)?.color ?? '#d93025';
-      const pin = new this.markerLib!.PinElement({
-        background: color,
-        borderColor: '#ffffff',
-        glyphColor: '#ffffff',
-        scale: 0.8,
-      });
-      const marker = new this.markerLib!.AdvancedMarkerElement({
-        map: this.map,
+      const marker = this.createMarker!({
         position: { lat: s.lat, lng: s.lng },
+        content: pinContent(color),
+        anchor: 'bottom',
         title: s.name,
-        content: pin,
+        zIndex: 8,
+        onClick: () =>
+          this.show({ name: s.name, address: s.address, lat: s.lat, lng: s.lng, placeId: s.google_place_id || undefined }),
       });
-      marker.addListener('click', () =>
-        this.show({ name: s.name, address: s.address, lat: s.lat, lng: s.lng, placeId: s.google_place_id || undefined }),
-      );
+      marker.setMap(this.map ?? null);
       return marker;
     });
   }
 
-  private drawUserMarker(position: google.maps.LatLngLiteral) {
-    if (!this.map || !this.markerLib) return;
-    if (!this.userMarker) {
-      const dot = document.createElement('div');
-      dot.style.cssText =
-        'width:18px;height:18px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 2px rgba(26,115,232,.35),0 1px 4px rgba(0,0,0,.4)';
-      this.userMarker = new this.markerLib.AdvancedMarkerElement({ map: this.map, position, content: dot, title: 'You are here' });
+  private drawUserMarker(position: google.maps.LatLngLiteral, accuracy?: number) {
+    if (!this.map || !this.createMarker || !this.mapsLib) return;
+    if (accuracy !== undefined) {
+      if (!this.accuracyCircle) {
+        this.accuracyCircle = new this.mapsLib.Circle({
+          map: this.map,
+          fillColor: '#1a73e8',
+          fillOpacity: 0.12,
+          strokeWeight: 0,
+          clickable: false,
+        });
+      }
+      this.accuracyCircle.setCenter(position);
+      this.accuracyCircle.setRadius(accuracy);
     }
-    this.userMarker.position = position;
+    if (!this.userMarker) {
+      this.userMarker = this.createMarker({ position, content: userDotContent(), title: 'You are here', zIndex: 9 });
+      this.userMarker.setMap(this.map);
+    }
+    this.userMarker.setPosition(position);
   }
 
   private async locateIfAlreadyAllowed() {
     try {
       const permission = await navigator.permissions.query({ name: 'geolocation' });
-      if (permission.state === 'granted') await this.locate();
+      if (permission.state === 'granted') this.startTracking();
     } catch {
       // The Permissions API is not available everywhere; the locate button still works.
     }
@@ -371,8 +474,8 @@ export class MapService {
     return new Promise((resolve, reject) => {
       const w = window as unknown as Record<string, unknown>;
       w['__arsenalMapsReady'] = () => resolve();
-      w['gm_authFailure'] = () =>
-        this.fail('Google rejected the API key. Check the key, its allowed websites and that billing is enabled.');
+      w['gm_authFailure'] = () => this.fail(describeGoogleError(this.googleErrorCode));
+      this.captureGoogleErrorCode();
       const script = document.createElement('script');
       script.src =
         `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}` +
@@ -381,6 +484,19 @@ export class MapService {
       script.onerror = () => reject(new Error('Could not reach Google Maps. Check your connection.'));
       document.head.appendChild(script);
     });
+  }
+
+  /** Google reports why a key failed only through console.error, so listen for it to show a useful message. */
+  private captureGoogleErrorCode() {
+    const original = console.error;
+    console.error = (...args: unknown[]) => {
+      const code = /Google Maps JavaScript API error: (\w+)/.exec(String(args[0]))?.[1];
+      if (code) {
+        this.googleErrorCode = code;
+        if (this.status() === 'error') this.errorDetail.set(describeGoogleError(code));
+      }
+      original.apply(console, args);
+    };
   }
 
   private fail(detail: string) {

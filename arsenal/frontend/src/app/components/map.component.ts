@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 
 import { MapType } from '../models';
+import { LayersService } from '../services/layers.service';
 import { MapService } from '../services/map.service';
 import { IconComponent } from './icon.component';
 
@@ -51,12 +52,28 @@ import { IconComponent } from './icon.component';
         <button
           type="button"
           class="single"
-          aria-label="Show my location"
+          [attr.aria-label]="maps.following() ? 'Stop following my location' : maps.tracking() ? 'Re-centre on my location' : 'Show my location'"
+          [attr.aria-pressed]="maps.tracking()"
           [class.busy]="maps.locating()"
-          (click)="maps.locate()"
+          [class.following]="maps.following()"
+          [class.tracking]="maps.tracking() && !maps.following()"
+          (click)="maps.locateMe()"
         >
           <app-icon name="locate" />
         </button>
+      </div>
+
+      <div class="legend" aria-label="Map layers">
+        @for (layer of layers.layers; track layer.id) {
+          <label>
+            <input type="checkbox" [checked]="layers.enabled()[layer.id]" (change)="layers.toggle(layer.id)" />
+            <i [style.background]="layer.color"></i>
+            {{ layer.label }}
+          </label>
+        }
+        @if (layers.zoomedOut()) {
+          <p>Zoom in to see hospitals, pharmacies and gun stores.</p>
+        }
       </div>
 
       <div class="layers">
@@ -151,6 +168,40 @@ import { IconComponent } from './icon.component';
       flex-direction: column;
       gap: 12px;
     }
+    .legend {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 14px 8px 10px;
+      border-radius: 8px;
+      background: var(--bg);
+      box-shadow: var(--shadow-1);
+      font-size: 13px;
+    }
+    .legend label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
+      cursor: pointer;
+    }
+    .legend i {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+    }
+    .legend p {
+      max-width: 190px;
+      margin: 4px 0 0 24px;
+      color: var(--text-2);
+      font-size: 12px;
+      line-height: 1.35;
+    }
     .layers {
       position: absolute;
       left: 16px;
@@ -182,6 +233,17 @@ import { IconComponent } from './icon.component';
     .single {
       border-radius: 8px;
       box-shadow: var(--shadow-1);
+    }
+    .following {
+      background: var(--primary);
+      color: #fff;
+    }
+    .following:hover {
+      background: var(--primary-dark);
+      color: #fff;
+    }
+    .tracking {
+      color: var(--primary);
     }
     .busy {
       color: var(--primary);
@@ -227,6 +289,7 @@ import { IconComponent } from './icon.component';
 })
 export class MapComponent implements AfterViewInit {
   protected readonly maps = inject(MapService);
+  protected readonly layers = inject(LayersService);
   private readonly canvas = viewChild.required<ElementRef<HTMLElement>>('canvas');
 
   protected readonly layersOpen = signal(false);

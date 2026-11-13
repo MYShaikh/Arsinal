@@ -3,6 +3,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from . import nuclear
 from .models import RecentSearch, SavedPlace
 from .serializers import RecentSearchSerializer, SavedPlaceSerializer
 
@@ -18,6 +19,12 @@ def config(request):
 @api_view(['GET'])
 def health(request):
     return Response({'status': 'ok', 'app': 'arsenal'})
+
+
+@api_view(['GET'])
+def nuclear_plants(request):
+    """Operating nuclear power plants worldwide (OpenStreetMap data; refresh with update_nuclear_plants)."""
+    return Response(nuclear.load_snapshot())
 
 
 class SavedPlaceViewSet(viewsets.ModelViewSet):

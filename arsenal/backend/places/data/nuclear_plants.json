@@ -1,0 +1,1674 @@
+[
+ {
+  "id": "way/880625927",
+  "name": "Akkuyu Nükleer Enerji Santrali",
+  "operator": "Rosatom",
+  "capacity_mw": 4800,
+  "lat": 36.14481,
+  "lng": 33.53487
+ },
+ {
+  "id": "way/26196330",
+  "name": "Arkansas Nuclear One",
+  "operator": "Entergy Arkansas",
+  "capacity_mw": 1824,
+  "lat": 35.31309,
+  "lng": -93.2317
+ },
+ {
+  "id": "way/8653261",
+  "name": "Atómové elektrárne Bohunice",
+  "operator": "",
+  "capacity_mw": 942,
+  "lat": 48.49347,
+  "lng": 17.68427
+ },
+ {
+  "id": "way/312173726",
+  "name": "Beaver Valley Nuclear Generating Station",
+  "operator": "Energy Harbor Nuclear Generation LLC",
+  "capacity_mw": 1847,
+  "lat": 40.62178,
+  "lng": -80.43236
+ },
+ {
+  "id": "way/26206102",
+  "name": "Braidwood Nuclear Generating Station",
+  "operator": "Exelon Nuclear",
+  "capacity_mw": 2450,
+  "lat": 41.2437,
+  "lng": -88.2292
+ },
+ {
+  "id": "relation/19824656",
+  "name": "Browns Ferry Nuclear Power Plant",
+  "operator": "Tennessee Valley Authority",
+  "capacity_mw": 3568,
+  "lat": 34.70855,
+  "lng": -87.11568
+ },
+ {
+  "id": "way/198181501",
+  "name": "Bruce Nuclear Generating Station",
+  "operator": "Bruce Power",
+  "capacity_mw": 6232,
+  "lat": 44.32395,
+  "lng": -81.58163
+ },
+ {
+  "id": "way/1096498358",
+  "name": "Brunswick Nuclear Generating Station",
+  "operator": "Duke Energy Progress",
+  "capacity_mw": 2003,
+  "lat": 33.95872,
+  "lng": -78.00886
+ },
+ {
+  "id": "way/117681050",
+  "name": "Byron Nuclear Power Plant",
+  "operator": "Exelon Nuclear",
+  "capacity_mw": 2450,
+  "lat": 42.07535,
+  "lng": -89.28267
+ },
+ {
+  "id": "way/384676406",
+  "name": "Callaway Energy Center",
+  "operator": "Ameren",
+  "capacity_mw": 1236,
+  "lat": 38.76349,
+  "lng": -91.78034
+ },
+ {
+  "id": "relation/1054361",
+  "name": "Calvert Cliffs Nuclear Power Plant",
+  "operator": "Exelon",
+  "capacity_mw": 1850,
+  "lat": 38.42753,
+  "lng": -76.44133
+ },
+ {
+  "id": "way/120926088",
+  "name": "Catawba Nuclear Station",
+  "operator": "Duke Energy",
+  "capacity_mw": 2410,
+  "lat": 35.05347,
+  "lng": -81.07165
+ },
+ {
+  "id": "way/175358417",
+  "name": "Central Nuclear Almirante Álvaro Alberto",
+  "operator": "Eletronuclear",
+  "capacity_mw": 1884,
+  "lat": -23.01015,
+  "lng": -44.46248
+ },
+ {
+  "id": "way/213353516",
+  "name": "Central Nuclear Embalse",
+  "operator": "Nucleoeléctrica Argentina S.A.",
+  "capacity_mw": 600,
+  "lat": -32.23807,
+  "lng": -64.46853
+ },
+ {
+  "id": "way/95949886",
+  "name": "Central Nuclear Laguna Verde",
+  "operator": "Comisión Federal de Electricidad",
+  "capacity_mw": 1552,
+  "lat": 19.72165,
+  "lng": -96.41043
+ },
+ {
+  "id": "way/193415212",
+  "name": "Central Nuclear de Atucha I",
+  "operator": "",
+  "capacity_mw": 1100,
+  "lat": -33.969,
+  "lng": -59.20726
+ },
+ {
+  "id": "way/126986991",
+  "name": "Central Nuclear de Cofrentes",
+  "operator": "Iberdrola",
+  "capacity_mw": 1092,
+  "lat": 39.21462,
+  "lng": -1.05471
+ },
+ {
+  "id": "way/66481386",
+  "name": "Central Nuclear de Trillo",
+  "operator": "Centrales Nucleares Almaraz-Trillo",
+  "capacity_mw": 1003,
+  "lat": 40.70054,
+  "lng": -2.62466
+ },
+ {
+  "id": "relation/4525578",
+  "name": "Central nuclear d'Ascó",
+  "operator": "",
+  "capacity_mw": 1988,
+  "lat": 41.20114,
+  "lng": 0.56927
+ },
+ {
+  "id": "way/125338442",
+  "name": "Central nuclear de Almaraz",
+  "operator": "Centrales Nucleares Almaraz-Trillo",
+  "capacity_mw": 1957,
+  "lat": 39.80763,
+  "lng": -5.69608
+ },
+ {
+  "id": "relation/12029607",
+  "name": "Central nuclear de Vandellòs II",
+  "operator": "",
+  "capacity_mw": 1087,
+  "lat": 40.95289,
+  "lng": 0.86641
+ },
+ {
+  "id": "way/132511267",
+  "name": "Centrala Nucleară de la Cernavodă",
+  "operator": "",
+  "capacity_mw": 1274,
+  "lat": 44.32096,
+  "lng": 28.05584
+ },
+ {
+  "id": "way/437091973",
+  "name": "Centrale nucléaire de Flamanville",
+  "operator": "Électricité de France",
+  "capacity_mw": 4290,
+  "lat": 49.53811,
+  "lng": -1.88021
+ },
+ {
+  "id": "way/189869576",
+  "name": "Centrale nucléaire de Nogent-sur-Seine",
+  "operator": "Électricité de France",
+  "capacity_mw": 2620,
+  "lat": 48.51808,
+  "lng": 3.51759
+ },
+ {
+  "id": "way/42015753",
+  "name": "Centrale nucléaire de Saint-Laurent des Eaux",
+  "operator": "EDF",
+  "capacity_mw": 1800,
+  "lat": 47.71964,
+  "lng": 1.58118
+ },
+ {
+  "id": "way/8591150",
+  "name": "Centrale nucléaire de Tihange",
+  "operator": "Engie Electrabel",
+  "capacity_mw": 3008,
+  "lat": 50.53354,
+  "lng": 5.27391
+ },
+ {
+  "id": "way/64728686",
+  "name": "Centre Nucléaire de Production d'Electricité de Belleville-sur-Loire",
+  "operator": "Électricité de France",
+  "capacity_mw": 2620,
+  "lat": 47.50883,
+  "lng": 2.87657
+ },
+ {
+  "id": "way/24041917",
+  "name": "Centre Nucléaire de Production d'Electricité de Cattenom",
+  "operator": "EDF",
+  "capacity_mw": 5200,
+  "lat": 49.41706,
+  "lng": 6.21967
+ },
+ {
+  "id": "way/235386452",
+  "name": "Centre Nucléaire de Production d'Electricité de Chinon",
+  "operator": "EDF",
+  "capacity_mw": 3820,
+  "lat": 47.22829,
+  "lng": 0.17145
+ },
+ {
+  "id": "relation/20011646",
+  "name": "Centre Nucléaire de Production d'Electricité de Chooz",
+  "operator": "Électricité de France",
+  "capacity_mw": 3000,
+  "lat": 50.09079,
+  "lng": 4.79242
+ },
+ {
+  "id": "way/41764784",
+  "name": "Centre Nucléaire de Production d'Electricité de Civaux",
+  "operator": "EDF",
+  "capacity_mw": 2900,
+  "lat": 46.4535,
+  "lng": 0.65226
+ },
+ {
+  "id": "way/75723545",
+  "name": "Centre Nucléaire de Production d'Electricité de Cruas-Meysse",
+  "operator": "Électricité de France",
+  "capacity_mw": 3660,
+  "lat": 44.63239,
+  "lng": 4.75529
+ },
+ {
+  "id": "way/190127671",
+  "name": "Centre Nucléaire de Production d'Electricité de Dampierre en Burly",
+  "operator": "Électricité de France",
+  "capacity_mw": 3560,
+  "lat": 47.73329,
+  "lng": 2.51728
+ },
+ {
+  "id": "way/42013419",
+  "name": "Centre Nucléaire de Production d'Electricité de Golfech",
+  "operator": "Électricité de France",
+  "capacity_mw": 2620,
+  "lat": 44.10754,
+  "lng": 0.84696
+ },
+ {
+  "id": "relation/20240158",
+  "name": "Centre Nucléaire de Production d'Electricité de Gravelines",
+  "operator": "Électricité de France",
+  "capacity_mw": 5460,
+  "lat": 51.01528,
+  "lng": 2.13764
+ },
+ {
+  "id": "way/239350854",
+  "name": "Centre Nucléaire de Production d'Electricité de Paluel",
+  "operator": "EDF",
+  "capacity_mw": 5320,
+  "lat": 49.85839,
+  "lng": 0.63517
+ },
+ {
+  "id": "relation/19318642",
+  "name": "Centre Nucléaire de Production d'Electricité de Penly",
+  "operator": "Électricité de France",
+  "capacity_mw": 2660,
+  "lat": 49.97562,
+  "lng": 1.21792
+ },
+ {
+  "id": "way/50014796",
+  "name": "Centre Nucléaire de Production d'Electricité de Saint-Alban",
+  "operator": "Électricité de France",
+  "capacity_mw": 2670,
+  "lat": 45.40748,
+  "lng": 4.75385
+ },
+ {
+  "id": "way/235360042",
+  "name": "Centre Nucléaire de Production d'Electricité du Blayais",
+  "operator": "Électricité de France",
+  "capacity_mw": 3804,
+  "lat": 45.25532,
+  "lng": -0.68842
+ },
+ {
+  "id": "way/42017156",
+  "name": "Centre Nucléaire de Production d'Electricité du Bugey",
+  "operator": "Électricité de France",
+  "capacity_mw": 3580,
+  "lat": 45.79945,
+  "lng": 5.26886
+ },
+ {
+  "id": "way/672758776",
+  "name": "Centre Nucléaire de Production d'Electricité du Tricastin",
+  "operator": "Électricité de France",
+  "capacity_mw": 3660,
+  "lat": 44.3311,
+  "lng": 4.73135
+ },
+ {
+  "id": "way/386839399",
+  "name": "Chamsa Nuclear Power Complex",
+  "operator": "Pakistan Atomic Energy Commission",
+  "capacity_mw": 1228,
+  "lat": 32.38706,
+  "lng": 71.46697
+ },
+ {
+  "id": "way/139892821",
+  "name": "Clinton Clean Energy Center",
+  "operator": "Constellation Energy",
+  "capacity_mw": 1138,
+  "lat": 40.17394,
+  "lng": -88.8362
+ },
+ {
+  "id": "way/84509116",
+  "name": "Columbia Generating Station",
+  "operator": "Energy Northwest",
+  "capacity_mw": 1200,
+  "lat": 46.47202,
+  "lng": -119.33323
+ },
+ {
+  "id": "relation/6732566",
+  "name": "Comanche Peak Nuclear Power Plant",
+  "operator": "Luminant",
+  "capacity_mw": 2400,
+  "lat": 32.29801,
+  "lng": -97.79314
+ },
+ {
+  "id": "relation/18033169",
+  "name": "Cooper Nuclear Power Station",
+  "operator": "Nebraska Public Power District",
+  "capacity_mw": 801,
+  "lat": 40.36107,
+  "lng": -95.64262
+ },
+ {
+  "id": "way/89556130",
+  "name": "D.C. Cook Nuclear Power Plant",
+  "operator": "Indiana Michigan Power",
+  "capacity_mw": 2285,
+  "lat": 41.97581,
+  "lng": -86.56546
+ },
+ {
+  "id": "way/274901437",
+  "name": "Darlington Nuclear Generating Station",
+  "operator": "Ontario Power Generation",
+  "capacity_mw": 3512,
+  "lat": 43.87059,
+  "lng": -78.71994
+ },
+ {
+  "id": "way/254602492",
+  "name": "Davis-Besse Nuclear Power Station",
+  "operator": "Energy Harbor Nuclear Generation LLC",
+  "capacity_mw": 925,
+  "lat": 41.59352,
+  "lng": -83.07936
+ },
+ {
+  "id": "way/24400930",
+  "name": "Diablo Canyon Power Plant",
+  "operator": "Pacific Gas and Electric Company",
+  "capacity_mw": 2323,
+  "lat": 35.21187,
+  "lng": -120.85015
+ },
+ {
+  "id": "way/43929754",
+  "name": "Dresden Generating Station",
+  "operator": "Exelon",
+  "capacity_mw": 1700,
+  "lat": 41.38972,
+  "lng": -88.26835
+ },
+ {
+  "id": "way/80230741",
+  "name": "Forsmarks Kärnkraftverk",
+  "operator": "Forsmarks Kraftgrupp",
+  "capacity_mw": 3271,
+  "lat": 60.40378,
+  "lng": 18.16753
+ },
+ {
+  "id": "way/916488837",
+  "name": "Grand Gulf Nuclear Generating Station",
+  "operator": "System Energy Resources, Inc",
+  "capacity_mw": 1440,
+  "lat": 32.00831,
+  "lng": -91.04965
+ },
+ {
+  "id": "way/1080961016",
+  "name": "H. B. Robinson Nuclear Generating Station",
+  "operator": "Duke Energy Progress",
+  "capacity_mw": 769,
+  "lat": 34.40289,
+  "lng": -80.1592
+ },
+ {
+  "id": "way/549051445",
+  "name": "Harris Nuclear Plant",
+  "operator": "Duke Energy Progress",
+  "capacity_mw": 951,
+  "lat": 35.63441,
+  "lng": -78.95652
+ },
+ {
+  "id": "way/4800321",
+  "name": "Hartlepool Nuclear Power Station",
+  "operator": "EDF Energy",
+  "capacity_mw": 1180,
+  "lat": 54.63516,
+  "lng": -1.18129
+ },
+ {
+  "id": "way/840331486",
+  "name": "Hatch Nuclear Power Plant",
+  "operator": "Southern Nuclear",
+  "capacity_mw": 1726,
+  "lat": 31.93255,
+  "lng": -82.34308
+ },
+ {
+  "id": "way/187976339",
+  "name": "Heavy Water Production Plant",
+  "operator": "",
+  "capacity_mw": 50,
+  "lat": 31.99271,
+  "lng": 72.19892
+ },
+ {
+  "id": "way/310488542",
+  "name": "Heysham Nuclear Power Station",
+  "operator": "EDF Energy",
+  "capacity_mw": 2433,
+  "lat": 54.02871,
+  "lng": -2.91709
+ },
+ {
+  "id": "way/1410158204",
+  "name": "IRT-2000 원자로 부지",
+  "operator": "",
+  "capacity_mw": 8,
+  "lat": 39.80735,
+  "lng": 125.75053
+ },
+ {
+  "id": "relation/5538984",
+  "name": "Jaderná elektrárna Dukovany",
+  "operator": "ČEZ",
+  "capacity_mw": 1880,
+  "lat": 49.08447,
+  "lng": 16.14816
+ },
+ {
+  "id": "relation/4660817",
+  "name": "Jaderná elektrárna Temelín",
+  "operator": "ČEZ",
+  "capacity_mw": 2056,
+  "lat": 49.17975,
+  "lng": 14.37737
+ },
+ {
+  "id": "relation/6046981",
+  "name": "Jadrová elektráreň Mochovce",
+  "operator": "Slovenské elektrárne, a.s.",
+  "capacity_mw": 1882,
+  "lat": 48.26097,
+  "lng": 18.45986
+ },
+ {
+  "id": "way/309505686",
+  "name": "James A. FitzPatrick Nuclear Power Plant",
+  "operator": "Exelon Nuclear",
+  "capacity_mw": 838,
+  "lat": 43.52228,
+  "lng": -76.39761
+ },
+ {
+  "id": "way/89819245",
+  "name": "Jedrska elektrarna Krško",
+  "operator": "NEK d.o.o.",
+  "capacity_mw": 688,
+  "lat": 45.93767,
+  "lng": 15.51594
+ },
+ {
+  "id": "way/1549168646",
+  "name": "Jizzax AES qurilish obyekti",
+  "operator": "",
+  "capacity_mw": 2100,
+  "lat": 40.58631,
+  "lng": 67.35058
+ },
+ {
+  "id": "way/660021586",
+  "name": "Joseph M. Farley Nuclear Plant",
+  "operator": "Southern Nuclear",
+  "capacity_mw": 1776,
+  "lat": 31.22239,
+  "lng": -85.11271
+ },
+ {
+  "id": "way/403601261",
+  "name": "KANUPP 2&3",
+  "operator": "",
+  "capacity_mw": 2034,
+  "lat": 24.85181,
+  "lng": 66.77499
+ },
+ {
+  "id": "way/1293009002",
+  "name": "KANUPP-1",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 24.845,
+  "lng": 66.78892
+ },
+ {
+  "id": "way/152627181",
+  "name": "Kaiga Atomic Power Station",
+  "operator": "",
+  "capacity_mw": 880,
+  "lat": 14.86611,
+  "lng": 74.43832
+ },
+ {
+  "id": "way/141414135",
+  "name": "Kakrapar Atomic Power Station",
+  "operator": "",
+  "capacity_mw": 1140,
+  "lat": 21.23499,
+  "lng": 73.35356
+ },
+ {
+  "id": "way/15917174",
+  "name": "Kerncentrale Doel",
+  "operator": "Electrabel",
+  "capacity_mw": 2935,
+  "lat": 51.32476,
+  "lng": 4.25603
+ },
+ {
+  "id": "relation/20806673",
+  "name": "Kernenergiecentrale Borssele",
+  "operator": "EPZ",
+  "capacity_mw": 485,
+  "lat": 51.43142,
+  "lng": 3.72001
+ },
+ {
+  "id": "relation/8088450",
+  "name": "Kernkraftwerk Beznau",
+  "operator": "Axpo Power AG",
+  "capacity_mw": 730,
+  "lat": 47.55214,
+  "lng": 8.22875
+ },
+ {
+  "id": "way/567427402",
+  "name": "Kernkraftwerk Gösgen",
+  "operator": "Kernkraftwerk Gösgen-Däniken AG",
+  "capacity_mw": 1010,
+  "lat": 47.36489,
+  "lng": 7.96804
+ },
+ {
+  "id": "relation/8094140",
+  "name": "Kernkraftwerk Leibstadt",
+  "operator": "Kernkraftwerk Leibstadt AG",
+  "capacity_mw": 1220,
+  "lat": 47.60127,
+  "lng": 8.18279
+ },
+ {
+  "id": "way/252396496",
+  "name": "Koeberg Nuclear Power Station",
+  "operator": "Eskom",
+  "capacity_mw": 1940,
+  "lat": -33.67666,
+  "lng": 18.43346
+ },
+ {
+  "id": "way/384663588",
+  "name": "Kudankulam Nuclear Power Plant",
+  "operator": "Nuclear Power Corporation of India Ltd.",
+  "capacity_mw": 1864,
+  "lat": 8.17254,
+  "lng": 77.70553
+ },
+ {
+  "id": "way/187599022",
+  "name": "LaSalle Generating Station",
+  "operator": "Exelon Corporation",
+  "capacity_mw": 2340,
+  "lat": 41.24477,
+  "lng": -88.66731
+ },
+ {
+  "id": "way/30090162",
+  "name": "Lemoizko zentral nuklearra",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 43.43263,
+  "lng": -2.87283
+ },
+ {
+  "id": "way/108347616",
+  "name": "Limerick Nuclear Power Plant",
+  "operator": "Exelon Generation Co., LLC",
+  "capacity_mw": 2277,
+  "lat": 40.22654,
+  "lng": -75.58684
+ },
+ {
+  "id": "way/225399990",
+  "name": "Loviisan ydinvoimalaitos",
+  "operator": "Fortum",
+  "capacity_mw": 1014,
+  "lat": 60.37077,
+  "lng": 26.34633
+ },
+ {
+  "id": "way/98366375",
+  "name": "Madras Atomic Power Station",
+  "operator": "",
+  "capacity_mw": 440,
+  "lat": 12.55705,
+  "lng": 80.17239
+ },
+ {
+  "id": "way/861200493",
+  "name": "McGuire Nuclear Station",
+  "operator": "Duke Energy",
+  "capacity_mw": 2441,
+  "lat": 35.43189,
+  "lng": -80.94745
+ },
+ {
+  "id": "way/43103844",
+  "name": "Millstone Nuclear Power Plant",
+  "operator": "Dominion Energy Nuclear Conn Inc",
+  "capacity_mw": 2163,
+  "lat": 41.3125,
+  "lng": -72.16798
+ },
+ {
+  "id": "way/197417877",
+  "name": "Monticello Nuclear Generating Plant",
+  "operator": "Xcel Energy",
+  "capacity_mw": 685,
+  "lat": 45.33094,
+  "lng": -93.8426
+ },
+ {
+  "id": "way/104567860",
+  "name": "Narora Atomic Power Station",
+  "operator": "",
+  "capacity_mw": 440,
+  "lat": 28.15532,
+  "lng": 78.40797
+ },
+ {
+  "id": "way/161552118",
+  "name": "Nine Mile Point Nuclear Generating Station",
+  "operator": "Exelon Nuclear",
+  "capacity_mw": 2019,
+  "lat": 43.52062,
+  "lng": -76.40819
+ },
+ {
+  "id": "relation/16603691",
+  "name": "North Anna Nuclear Generating Station",
+  "operator": "Virginia Electric & Power Co",
+  "capacity_mw": 1892,
+  "lat": 38.05928,
+  "lng": -77.79272
+ },
+ {
+  "id": "way/421287222",
+  "name": "Nuclear power plant",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 19.00779,
+  "lng": 72.91947
+ },
+ {
+  "id": "way/552845027",
+  "name": "Nuclear power plant",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 34.29818,
+  "lng": -81.31499
+ },
+ {
+  "id": "way/686948226",
+  "name": "Nuclear power plant",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 37.42791,
+  "lng": 141.02784
+ },
+ {
+  "id": "way/785249829",
+  "name": "Nuclear power plant",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 38.83851,
+  "lng": 115.69777
+ },
+ {
+  "id": "way/1035905414",
+  "name": "Nuclear power plant",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 35.32748,
+  "lng": 129.30087
+ },
+ {
+  "id": "way/1572473364",
+  "name": "Nuclear power plant",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 40.40981,
+  "lng": 115.57944
+ },
+ {
+  "id": "way/1084336687",
+  "name": "Oconee Nuclear Station",
+  "operator": "Duke Energy",
+  "capacity_mw": 2667,
+  "lat": 34.79383,
+  "lng": -82.89713
+ },
+ {
+  "id": "way/26504079",
+  "name": "Olkiluodon ydinvoimalaitos",
+  "operator": "Teollisuuden Voima",
+  "capacity_mw": 3380,
+  "lat": 61.23735,
+  "lng": 21.43853
+ },
+ {
+  "id": "way/207201382",
+  "name": "Oskarshamns kärnkraftverk",
+  "operator": "OKG Aktiebolag",
+  "capacity_mw": 1450,
+  "lat": 57.4148,
+  "lng": 16.67159
+ },
+ {
+  "id": "way/86473260",
+  "name": "PSEG Salem and Hope Creek Nuclear Generating Stations",
+  "operator": "Public Service Enterprise Group",
+  "capacity_mw": 3470,
+  "lat": 39.46608,
+  "lng": -75.53002
+ },
+ {
+  "id": "relation/7671467",
+  "name": "Paksi Atomerőmű",
+  "operator": "MVM Paksi Atomerőmű Zrt.",
+  "capacity_mw": 2000,
+  "lat": 46.57755,
+  "lng": 18.85502
+ },
+ {
+  "id": "way/152944370",
+  "name": "Palisades Nuclear Generating Station",
+  "operator": "Holtec International",
+  "capacity_mw": 812,
+  "lat": 42.32226,
+  "lng": -86.31446
+ },
+ {
+  "id": "way/28706177",
+  "name": "Palo Verde Nuclear Generating Station",
+  "operator": "Arizona Public Service",
+  "capacity_mw": 3937,
+  "lat": 33.38652,
+  "lng": -112.86476
+ },
+ {
+  "id": "way/168936362",
+  "name": "Peach Bottom Power Plant",
+  "operator": "Exelon Nuclear",
+  "capacity_mw": 2658,
+  "lat": 39.75904,
+  "lng": -76.26831
+ },
+ {
+  "id": "way/419598118",
+  "name": "Perry Nuclear Power Plant",
+  "operator": "FirstEnergy",
+  "capacity_mw": 1230,
+  "lat": 41.79791,
+  "lng": -81.14499
+ },
+ {
+  "id": "way/24656911",
+  "name": "Pickering Nuclear Generating Station",
+  "operator": "Ontario Power Generation",
+  "capacity_mw": 2086,
+  "lat": 43.81116,
+  "lng": -79.06322
+ },
+ {
+  "id": "way/963375069",
+  "name": "Point Lepreau Nuclear Generating Station",
+  "operator": "NB Power",
+  "capacity_mw": 660,
+  "lat": 45.07436,
+  "lng": -66.45519
+ },
+ {
+  "id": "way/531351622",
+  "name": "Prairie Island Nuclear Generating Plant",
+  "operator": "Northern States Power Co - Minnesota",
+  "capacity_mw": 1186,
+  "lat": 44.62129,
+  "lng": -92.63536
+ },
+ {
+  "id": "way/735289776",
+  "name": "Quad Cities Nuclear Generating Station",
+  "operator": "Constellation Energy Corporation",
+  "capacity_mw": 2019,
+  "lat": 41.72624,
+  "lng": -90.30597
+ },
+ {
+  "id": "way/403198409",
+  "name": "R.E. Ginna Nuclear Station",
+  "operator": "Exelon Nuclear",
+  "capacity_mw": 614,
+  "lat": 43.27742,
+  "lng": -77.30908
+ },
+ {
+  "id": "node/8645134918",
+  "name": "RHF de l'Institut Laue Langevin",
+  "operator": "",
+  "capacity_mw": 57,
+  "lat": 45.2061,
+  "lng": 5.69284
+ },
+ {
+  "id": "way/319865364",
+  "name": "Rajasthan Atomic Power Station",
+  "operator": "",
+  "capacity_mw": 1085,
+  "lat": 24.87661,
+  "lng": 75.62357
+ },
+ {
+  "id": "relation/13350325",
+  "name": "Ringhals kärnkraftverk",
+  "operator": "Ringhals AB",
+  "capacity_mw": 2190,
+  "lat": 57.26148,
+  "lng": 12.11037
+ },
+ {
+  "id": "way/919231184",
+  "name": "River Bend Nuclear Generating Station",
+  "operator": "Entergy Louisiana",
+  "capacity_mw": 1036,
+  "lat": 30.75548,
+  "lng": -91.33264
+ },
+ {
+  "id": "way/606158232",
+  "name": "Saeul Nuclear Plant",
+  "operator": "KHNP/KEPCO",
+  "capacity_mw": 2834,
+  "lat": 35.33922,
+  "lng": 129.31172
+ },
+ {
+  "id": "way/230701154",
+  "name": "Saint Lucie Nuclear Power Plant",
+  "operator": "Florida Power & Light",
+  "capacity_mw": 2160,
+  "lat": 27.34737,
+  "lng": -80.24462
+ },
+ {
+  "id": "way/122445718",
+  "name": "Seabrook Station",
+  "operator": "NextEra Energy",
+  "capacity_mw": 1242,
+  "lat": 42.89784,
+  "lng": -70.85505
+ },
+ {
+  "id": "way/1215533552",
+  "name": "Sequoyah Nuclear Generating Station",
+  "operator": "Tennessee Valley Authority",
+  "capacity_mw": 2441,
+  "lat": 35.22515,
+  "lng": -85.0914
+ },
+ {
+  "id": "way/1007084278",
+  "name": "Shearon Harris Nuclear Power Plant",
+  "operator": "Duke Energy",
+  "capacity_mw": 928,
+  "lat": 35.63369,
+  "lng": -78.95613
+ },
+ {
+  "id": "way/27625744",
+  "name": "Sizewell B Nuclear Power Station",
+  "operator": "EDF Energy",
+  "capacity_mw": 1195,
+  "lat": 52.2144,
+  "lng": 1.61889
+ },
+ {
+  "id": "way/39899843",
+  "name": "South Texas Project Electric Generating Station",
+  "operator": "South Texas Project Nuclear Operating Company",
+  "capacity_mw": 2709,
+  "lat": 28.79536,
+  "lng": -96.04791
+ },
+ {
+  "id": "way/1231456212",
+  "name": "Surry Nuclear Power Plant",
+  "operator": "Virginia Electric and Power Company",
+  "capacity_mw": 1695,
+  "lat": 37.16497,
+  "lng": -76.69659
+ },
+ {
+  "id": "way/419480573",
+  "name": "Susquehanna Steam Electric Station",
+  "operator": "Talen Energy",
+  "capacity_mw": 2600,
+  "lat": 41.09239,
+  "lng": -76.14795
+ },
+ {
+  "id": "way/24726877",
+  "name": "TR épület",
+  "operator": "Budapesti Műszaki és Gazdaságtudományi Egyetem Nukleáris Technika Intézete",
+  "capacity_mw": null,
+  "lat": 47.47898,
+  "lng": 19.05835
+ },
+ {
+  "id": "way/331427518",
+  "name": "Tarapur Atomic Power Station",
+  "operator": "",
+  "capacity_mw": 1400,
+  "lat": 19.83259,
+  "lng": 72.66915
+ },
+ {
+  "id": "way/91104903",
+  "name": "Torness Nuclear Power Station",
+  "operator": "EDF Energy",
+  "capacity_mw": 1364,
+  "lat": 55.96838,
+  "lng": -2.40881
+ },
+ {
+  "id": "way/219733324",
+  "name": "Unit 2",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 33.36921,
+  "lng": -117.55548
+ },
+ {
+  "id": "way/219733321",
+  "name": "Unit 3",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 33.36857,
+  "lng": -117.55429
+ },
+ {
+  "id": "way/359445493",
+  "name": "Virgil C. Summer Nuclear Generating Station",
+  "operator": "SCE&G",
+  "capacity_mw": 1030,
+  "lat": 34.29598,
+  "lng": -81.31455
+ },
+ {
+  "id": "way/964587431",
+  "name": "Vogtle Electric Generating Plant",
+  "operator": "Southern Nuclear",
+  "capacity_mw": 4536,
+  "lat": 33.13942,
+  "lng": -81.76946
+ },
+ {
+  "id": "way/1175928952",
+  "name": "Waterford 3 Nuclear Generating Station",
+  "operator": "Entergy Louisiana",
+  "capacity_mw": 1200,
+  "lat": 29.99337,
+  "lng": -90.47036
+ },
+ {
+  "id": "way/1213799426",
+  "name": "Watts Bar Nuclear Power Plant",
+  "operator": "Tennessee Valley Authority",
+  "capacity_mw": 2540,
+  "lat": 35.60113,
+  "lng": -84.79207
+ },
+ {
+  "id": "way/120652193",
+  "name": "Wolf Creek Generating Station",
+  "operator": "Wolf Creek Nuclear Optg Corp",
+  "capacity_mw": 1268,
+  "lat": 38.23914,
+  "lng": -95.68742
+ },
+ {
+  "id": "way/157471225",
+  "name": "АЕЦ Козлодуй",
+  "operator": "",
+  "capacity_mw": 2000,
+  "lat": 43.74267,
+  "lng": 23.77509
+ },
+ {
+  "id": "way/858347214",
+  "name": "Академик Ломоносов",
+  "operator": "Rosatom",
+  "capacity_mw": 64,
+  "lat": 69.70969,
+  "lng": 170.30604
+ },
+ {
+  "id": "way/48906740",
+  "name": "Балаковская АЭС",
+  "operator": "Росэнергоатом",
+  "capacity_mw": 4000,
+  "lat": 52.091,
+  "lng": 47.95653
+ },
+ {
+  "id": "way/866733225",
+  "name": "Беларуская АЭС",
+  "operator": "Беларуская атамная электрастанцыя",
+  "capacity_mw": 2400,
+  "lat": 54.76242,
+  "lng": 26.09192
+ },
+ {
+  "id": "relation/4456817",
+  "name": "Белоярская АЭС",
+  "operator": "",
+  "capacity_mw": 1485,
+  "lat": 56.85093,
+  "lng": 61.32167
+ },
+ {
+  "id": "way/1013377152",
+  "name": "Билибинская АТЭЦ",
+  "operator": "Росэнергоатом",
+  "capacity_mw": 36,
+  "lat": 68.0511,
+  "lng": 166.53922
+ },
+ {
+  "id": "way/28877213",
+  "name": "Запорізька АЕС",
+  "operator": "НАЕК \"Енергоатом\"",
+  "capacity_mw": 5700,
+  "lat": 47.51045,
+  "lng": 34.58785
+ },
+ {
+  "id": "way/514718570",
+  "name": "Исследовательские ядерные установки НИИАР",
+  "operator": "",
+  "capacity_mw": 72,
+  "lat": 54.19056,
+  "lng": 49.47257
+ },
+ {
+  "id": "way/564414439",
+  "name": "Калининская АЭС",
+  "operator": "Росэнергоатом",
+  "capacity_mw": 4000,
+  "lat": 57.9089,
+  "lng": 35.05076
+ },
+ {
+  "id": "relation/6334623",
+  "name": "Кольская АЭС",
+  "operator": "Концерн Росэнергоатом ОАО",
+  "capacity_mw": 1760,
+  "lat": 67.46558,
+  "lng": 32.47856
+ },
+ {
+  "id": "way/147711211",
+  "name": "Курская АЭС",
+  "operator": "АО «Концерн Росэнергоатом»",
+  "capacity_mw": 2000,
+  "lat": 51.67759,
+  "lng": 35.60403
+ },
+ {
+  "id": "relation/1953975",
+  "name": "Ленинградская АЭС",
+  "operator": "Rosenergoatom",
+  "capacity_mw": 1850,
+  "lat": 59.84573,
+  "lng": 29.03958
+ },
+ {
+  "id": "way/102427749",
+  "name": "Ленинградская АЭС-2",
+  "operator": "",
+  "capacity_mw": 2167,
+  "lat": 59.82934,
+  "lng": 29.05876
+ },
+ {
+  "id": "way/394340868",
+  "name": "Нововоронежская АЭС",
+  "operator": "ОАО \"Концерн Росэнергоатом\"",
+  "capacity_mw": 1417,
+  "lat": 51.27526,
+  "lng": 39.20255
+ },
+ {
+  "id": "way/252671500",
+  "name": "Нововоронежская АЭС-2",
+  "operator": "ОАО \"Концерн Росэнергоатом\"",
+  "capacity_mw": 2361,
+  "lat": 51.26566,
+  "lng": 39.21294
+ },
+ {
+  "id": "relation/4546127",
+  "name": "Південноукраїнська АЕС",
+  "operator": "НАЕК Енергоатом",
+  "capacity_mw": 3000,
+  "lat": 47.8108,
+  "lng": 31.21844
+ },
+ {
+  "id": "way/41289744",
+  "name": "Ростовская АЭС",
+  "operator": "Росэнергоатом",
+  "capacity_mw": 4000,
+  "lat": 47.60109,
+  "lng": 42.37837
+ },
+ {
+  "id": "way/28878854",
+  "name": "Рівненська АЕС",
+  "operator": "НАЕК Енергоатом",
+  "capacity_mw": 2835,
+  "lat": 51.32526,
+  "lng": 25.89687
+ },
+ {
+  "id": "way/107986168",
+  "name": "Смоленская АЭС",
+  "operator": "",
+  "capacity_mw": 3000,
+  "lat": 54.16348,
+  "lng": 33.23491
+ },
+ {
+  "id": "way/28878631",
+  "name": "Хмельницька атомна електростанція",
+  "operator": "",
+  "capacity_mw": 2000,
+  "lat": 50.30198,
+  "lng": 26.64796
+ },
+ {
+  "id": "way/23652365",
+  "name": "Чорнобильська Атомна Електростанція",
+  "operator": "НАЕК Енергоатом",
+  "capacity_mw": 0,
+  "lat": 51.38978,
+  "lng": 30.10427
+ },
+ {
+  "id": "way/271970600",
+  "name": "Հայկական ատոմային էլեկտրակայան",
+  "operator": "",
+  "capacity_mw": 408,
+  "lat": 40.18297,
+  "lng": 44.14788
+ },
+ {
+  "id": "way/301690711",
+  "name": "محطة براكة للطاقة النووية",
+  "operator": "Emirates Nuclear Energy Corporation",
+  "capacity_mw": 5600,
+  "lat": 23.96225,
+  "lng": 52.23102
+ },
+ {
+  "id": "relation/6047051",
+  "name": "نیروگاه اتمی بوشهر",
+  "operator": "",
+  "capacity_mw": 1000,
+  "lat": 28.82915,
+  "lng": 50.88499
+ },
+ {
+  "id": "way/530960829",
+  "name": "রূপপুর পারমাণবিক বিদ্যুৎ কেন্দ্র",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 24.06507,
+  "lng": 89.04457
+ },
+ {
+  "id": "way/605420909",
+  "name": "ふげん",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 35.75467,
+  "lng": 136.01688
+ },
+ {
+  "id": "way/771787166",
+  "name": "もんじゅ",
+  "operator": "日本原子力研究開発機構",
+  "capacity_mw": 280,
+  "lat": 35.73909,
+  "lng": 135.98529
+ },
+ {
+  "id": "way/1489267299",
+  "name": "三澳核电站",
+  "operator": "",
+  "capacity_mw": 1126,
+  "lat": 27.19907,
+  "lng": 120.51549
+ },
+ {
+  "id": "way/240238761",
+  "name": "三门核电站",
+  "operator": "中核集团三门核电有限公司",
+  "capacity_mw": 2314,
+  "lat": 29.09966,
+  "lng": 121.63835
+ },
+ {
+  "id": "way/330451009",
+  "name": "中国实验快堆",
+  "operator": "",
+  "capacity_mw": 20,
+  "lat": 39.74076,
+  "lng": 116.03059
+ },
+ {
+  "id": "way/1528082085",
+  "name": "中核霞浦钠冷快堆示范电站",
+  "operator": "中核霞浦核电有限公司",
+  "capacity_mw": 682,
+  "lat": 26.8029,
+  "lng": 120.15263
+ },
+ {
+  "id": "way/456491989",
+  "name": "伊方原子力発電所",
+  "operator": "四国電力株式会社",
+  "capacity_mw": 1456,
+  "lat": 33.48902,
+  "lng": 132.30894
+ },
+ {
+  "id": "way/1528435632",
+  "name": "华能石岛湾高温气冷堆示范电站",
+  "operator": "",
+  "capacity_mw": 200,
+  "lat": 36.9792,
+  "lng": 122.531
+ },
+ {
+  "id": "way/299942571",
+  "name": "台山核电站",
+  "operator": "",
+  "capacity_mw": 3320,
+  "lat": 21.91715,
+  "lng": 112.9819
+ },
+ {
+  "id": "way/435061160",
+  "name": "台山核电站",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 21.91234,
+  "lng": 112.97754
+ },
+ {
+  "id": "way/1528457905",
+  "name": "国家电投石岛湾“国和一号”示范电站",
+  "operator": "",
+  "capacity_mw": 3000,
+  "lat": 36.96596,
+  "lng": 122.51949
+ },
+ {
+  "id": "way/299929726",
+  "name": "大亚湾核电站",
+  "operator": "广东核电合营有限公司",
+  "capacity_mw": 1888,
+  "lat": 22.59711,
+  "lng": 114.5443
+ },
+ {
+  "id": "way/605382252",
+  "name": "大飯原子力発電所",
+  "operator": "関西電力株式会社",
+  "capacity_mw": 4494,
+  "lat": 35.54109,
+  "lng": 135.65475
+ },
+ {
+  "id": "way/1341021071",
+  "name": "女川原子力発電所",
+  "operator": "Tōhoku Denryoku",
+  "capacity_mw": 2174,
+  "lat": 38.39897,
+  "lng": 141.4992
+ },
+ {
+  "id": "way/261077251",
+  "name": "寧德核電站",
+  "operator": "福建宁德核电有限公司",
+  "capacity_mw": 4072,
+  "lat": 27.04549,
+  "lng": 120.28297
+ },
+ {
+  "id": "way/299941302",
+  "name": "岭澳核电站",
+  "operator": "广东岭澳核电有限公司",
+  "capacity_mw": 3914,
+  "lat": 22.60563,
+  "lng": 114.55305
+ },
+ {
+  "id": "way/605382253",
+  "name": "島根原子力発電所",
+  "operator": "中国電力株式会社",
+  "capacity_mw": 820,
+  "lat": 35.5361,
+  "lng": 132.99813
+ },
+ {
+  "id": "way/215429864",
+  "name": "川内原子力発電所",
+  "operator": "九州電力",
+  "capacity_mw": 1692,
+  "lat": 31.83333,
+  "lng": 130.1894
+ },
+ {
+  "id": "way/1347997568",
+  "name": "广东廉江核电厂",
+  "operator": "国核湛江核电有限公司",
+  "capacity_mw": 2500,
+  "lat": 21.56076,
+  "lng": 109.80957
+ },
+ {
+  "id": "way/948567657",
+  "name": "徐大堡核电站",
+  "operator": "",
+  "capacity_mw": null,
+  "lat": 40.35077,
+  "lng": 120.54657
+ },
+ {
+  "id": "way/255763556",
+  "name": "志賀原子力発電所",
+  "operator": "北陸電力株式会社",
+  "capacity_mw": 1898,
+  "lat": 37.06097,
+  "lng": 136.72925
+ },
+ {
+  "id": "way/449155824",
+  "name": "敦賀原子力発電所",
+  "operator": "日本原子力発電株式会社",
+  "capacity_mw": 1160,
+  "lat": 35.75198,
+  "lng": 136.01997
+ },
+ {
+  "id": "way/605420910",
+  "name": "敦賀原子力発電所",
+  "operator": "日本原子力発電株式会社",
+  "capacity_mw": null,
+  "lat": 35.7529,
+  "lng": 136.00546
+ },
+ {
+  "id": "way/299934546",
+  "name": "方家山核电站",
+  "operator": "中国核工业集团公司",
+  "capacity_mw": 2024,
+  "lat": 30.44105,
+  "lng": 120.94115
+ },
+ {
+  "id": "way/103783431",
+  "name": "旧福島第一原子力発電所",
+  "operator": "東京電力",
+  "capacity_mw": null,
+  "lat": 37.42272,
+  "lng": 141.02974
+ },
+ {
+  "id": "way/249607042",
+  "name": "昌江核电站",
+  "operator": "中国核工业集团公司",
+  "capacity_mw": 1300,
+  "lat": 19.46032,
+  "lng": 108.89687
+ },
+ {
+  "id": "relation/1527911",
+  "name": "東海発電所",
+  "operator": "Japan Atomic Power Company",
+  "capacity_mw": 1100,
+  "lat": 36.46794,
+  "lng": 140.60828
+ },
+ {
+  "id": "way/605420907",
+  "name": "東通原子力発電所",
+  "operator": "Tōhoku Denryoku",
+  "capacity_mw": 1100,
+  "lat": 41.18767,
+  "lng": 141.38957
+ },
+ {
+  "id": "way/216480979",
+  "name": "柏崎刈羽原子力発電所",
+  "operator": "東京電力ホールディングス株式会社",
+  "capacity_mw": 8212,
+  "lat": 37.43086,
+  "lng": 138.59916
+ },
+ {
+  "id": "way/115880550",
+  "name": "泊発電所",
+  "operator": "",
+  "capacity_mw": 2070,
+  "lat": 43.03622,
+  "lng": 140.51215
+ },
+ {
+  "id": "way/806310370",
+  "name": "浜岡原子力発電所",
+  "operator": "",
+  "capacity_mw": 3617,
+  "lat": 34.62265,
+  "lng": 138.14677
+ },
+ {
+  "id": "way/299936595",
+  "name": "海阳核电站",
+  "operator": "",
+  "capacity_mw": 2340,
+  "lat": 36.71101,
+  "lng": 121.38515
+ },
+ {
+  "id": "way/779744289",
+  "name": "漳州核电站",
+  "operator": "",
+  "capacity_mw": 6000,
+  "lat": 23.8333,
+  "lng": 117.49244
+ },
+ {
+  "id": "way/172644773",
+  "name": "玄海原子力発電所",
+  "operator": "九州電力",
+  "capacity_mw": 3478,
+  "lat": 33.51516,
+  "lng": 129.83543
+ },
+ {
+  "id": "way/28939657",
+  "name": "田湾核电站",
+  "operator": "江苏核电有限公司",
+  "capacity_mw": 5890,
+  "lat": 34.68813,
+  "lng": 119.45449
+ },
+ {
+  "id": "way/104409614",
+  "name": "福島第二原子力発電所",
+  "operator": "Tōkyō Denryoku Kabushiki-kaisha",
+  "capacity_mw": 4400,
+  "lat": 37.31612,
+  "lng": 141.02217
+ },
+ {
+  "id": "way/300036409",
+  "name": "福清核电站",
+  "operator": "中国核工业集团公司",
+  "capacity_mw": 6678,
+  "lat": 25.44278,
+  "lng": 119.44269
+ },
+ {
+  "id": "relation/3988608",
+  "name": "秦山核电站",
+  "operator": "秦山核电公司",
+  "capacity_mw": 4120,
+  "lat": 30.42842,
+  "lng": 120.94771
+ },
+ {
+  "id": "way/207641187",
+  "name": "第一核能發電廠",
+  "operator": "台灣電力公司",
+  "capacity_mw": 1208,
+  "lat": 25.28548,
+  "lng": 121.58833
+ },
+ {
+  "id": "relation/7565672",
+  "name": "第三核能發電廠",
+  "operator": "台灣電力公司",
+  "capacity_mw": 1780,
+  "lat": 21.95839,
+  "lng": 120.75115
+ },
+ {
+  "id": "way/203381069",
+  "name": "第二核能發電廠",
+  "operator": "台灣電力公司",
+  "capacity_mw": 1896,
+  "lat": 25.20255,
+  "lng": 121.66266
+ },
+ {
+  "id": "way/299938184",
+  "name": "红沿河核电站",
+  "operator": "辽宁红沿河核电有限公司",
+  "capacity_mw": 5305,
+  "lat": 39.79161,
+  "lng": 121.48058
+ },
+ {
+  "id": "way/605420905",
+  "name": "美浜原子力発電所",
+  "operator": "関西電力株式会社",
+  "capacity_mw": 826,
+  "lat": 35.70362,
+  "lng": 135.96171
+ },
+ {
+  "id": "way/1460254812",
+  "name": "防城港核电站",
+  "operator": "广西防城港核电有限公司",
+  "capacity_mw": 4547,
+  "lat": 21.64452,
+  "lng": 108.56332
+ },
+ {
+  "id": "way/275121969",
+  "name": "阳江核电站",
+  "operator": "阳江核电有限公司",
+  "capacity_mw": 6000,
+  "lat": 21.70952,
+  "lng": 112.26116
+ },
+ {
+  "id": "way/456491990",
+  "name": "高浜原子力発電所",
+  "operator": "関西電力株式会社",
+  "capacity_mw": 3392,
+  "lat": 35.52297,
+  "lng": 135.50398
+ },
+ {
+  "id": "way/403402694",
+  "name": "고리원자력발전소",
+  "operator": "한국수력원자력",
+  "capacity_mw": 7489,
+  "lat": 35.32846,
+  "lng": 129.29551
+ },
+ {
+  "id": "way/215133938",
+  "name": "영변 50MW 원자로",
+  "operator": "",
+  "capacity_mw": 50,
+  "lat": 39.78915,
+  "lng": 125.76271
+ },
+ {
+  "id": "way/215200901",
+  "name": "영변 5MW 원자로 부지",
+  "operator": "",
+  "capacity_mw": 5,
+  "lat": 39.79766,
+  "lng": 125.75475
+ },
+ {
+  "id": "way/403402683",
+  "name": "월성원자력발전소",
+  "operator": "한국수력원자력",
+  "capacity_mw": 4566,
+  "lat": 35.71788,
+  "lng": 129.47564
+ },
+ {
+  "id": "way/387266330",
+  "name": "한빛원자력발전소",
+  "operator": "한국수력원자력",
+  "capacity_mw": 5913,
+  "lat": 35.41022,
+  "lng": 126.41758
+ },
+ {
+  "id": "way/277786990",
+  "name": "한울원자력발전소",
+  "operator": "한국수력원자력",
+  "capacity_mw": 5881,
+  "lat": 37.08794,
+  "lng": 129.38632
+ }
+]

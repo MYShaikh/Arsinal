@@ -15,6 +15,9 @@ import { IconComponent } from './icon.component';
       }
       <div class="body">
         <h2>{{ p.name }}</h2>
+        @if (p.description) {
+          <div class="desc">{{ p.description }}</div>
+        }
         @if (p.rating) {
           <div class="rating">
             <b>{{ p.rating.toFixed(1) }}</b>
@@ -59,10 +62,12 @@ import { IconComponent } from './icon.component';
         }
 
         <ul class="facts">
-          <li>
-            <app-icon name="place" [size]="20" />
-            <span>{{ p.address }}</span>
-          </li>
+          @if (p.address) {
+            <li>
+              <app-icon name="place" [size]="20" />
+              <span>{{ p.address }}</span>
+            </li>
+          }
           @if (p.phone) {
             <li>
               <app-icon name="phone" [size]="20" />
@@ -113,6 +118,12 @@ import { IconComponent } from './icon.component';
       font-size: 22px;
       font-weight: 400;
       line-height: 1.25;
+    }
+    .desc {
+      margin-bottom: 4px;
+      color: var(--text-2);
+      font-size: 14px;
+      line-height: 1.4;
     }
     .rating {
       display: flex;
