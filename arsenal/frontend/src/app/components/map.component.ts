@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ElementRef, inject, signal, viewChild } from 
 import { MapType } from '../models';
 import { LayersService } from '../services/layers.service';
 import { MapService } from '../services/map.service';
+import { WaterService } from '../services/water.service';
 import { IconComponent } from './icon.component';
 
 @Component({
@@ -63,14 +64,60 @@ import { IconComponent } from './icon.component';
         </button>
       </div>
 
-      <label class="legend">
-        <input type="checkbox" [checked]="layers.plantsVisible()" (change)="layers.toggle()" />
-        <i></i>
-        Nuclear power plants
-        @if (layers.plantCount()) {
-          <span>{{ layers.plantCount() }}</span>
+      <div class="legend" aria-label="Map layers">
+        @for (layer of layers.layers; track layer.id) {
+          <label>
+            <input type="checkbox" [checked]="layers.enabled()[layer.id]" (change)="layers.toggle(layer.id)" />
+            <i [style.background]="layer.color"></i>
+            {{ layer.label }}
+            @if (layers.counts()[layer.id]) {
+              <span>{{ layers.counts()[layer.id].toLocaleString() }}</span>
+            }
+          </label>
         }
-      </label>
+        <label>
+          <input type="checkbox" [checked]="water.enabled()" (change)="water.toggle()" />
+          <i style="background: #1e88e5"></i>
+          Nearest flowing water
+        </label>
+        @if (layers.zoomedOut()) {
+          <p>Zoom in to a city to load hospitals, pharmacies, grocery stores and ammunition shops.</p>
+        } @else if (layers.loadingTiles() > 0) {
+          <p>Loading places…</p>
+        }
+      </div>
+
+      @if (water.enabled()) {
+        <button type="button" class="water" (click)="water.showBoth()" [disabled]="water.status() !== 'found'">
+          @switch (water.status()) {
+            @case ('found') {
+              <app-icon name="arrow" [size]="30" [style.transform]="'rotate(' + water.result()!.bearing_deg + 'deg)'" />
+              <span class="text">
+                <b>{{ water.result()!.name || waterKind(water.result()!.kind) }}</b>
+                <span>
+                  {{ distance(water.result()!.distance_m!) }} {{ compass(water.result()!.bearing_deg!) }}
+                  · from {{ water.source() === 'you' ? 'your location' : 'map centre' }}
+                </span>
+              </span>
+            }
+            @case ('none') {
+              <app-icon name="arrow" [size]="30" />
+              <span class="text">
+                <b>No flowing water found</b>
+                <span>None within {{ distance(water.result()?.searched_m ?? 0) }}{{ water.result()?.incomplete ? ' (wider search timed out)' : '' }}</span>
+              </span>
+            }
+            @case ('error') {
+              <app-icon name="arrow" [size]="30" />
+              <span class="text"><b>Water lookup unavailable</b><span>Map data is busy. It will retry when you move.</span></span>
+            }
+            @default {
+              <span class="spinner small"></span>
+              <span class="text"><b>Finding nearest flowing water…</b></span>
+            }
+          }
+        </button>
+      }
 
       <div class="layers">
         @if (layersOpen()) {
@@ -170,13 +217,19 @@ import { IconComponent } from './icon.component';
       right: 16px;
       z-index: 4;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 2px;
       padding: 8px 14px 8px 10px;
       border-radius: 8px;
       background: var(--bg);
       box-shadow: var(--shadow-1);
       font-size: 13px;
+    }
+    .legend label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
       cursor: pointer;
     }
     .legend i {
@@ -184,11 +237,58 @@ import { IconComponent } from './icon.component';
       height: 12px;
       border: 2px solid #fff;
       border-radius: 50%;
-      background: #e53935;
       box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
     }
-    .legend span {
+    .legend label span {
       color: var(--text-2);
+    }
+    .legend p {
+      max-width: 210px;
+      margin: 4px 0 0 24px;
+      color: var(--text-2);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .water {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: auto;
+      max-width: min(92%, 420px);
+      height: auto;
+      padding: 8px 18px 8px 12px;
+      transform: translateX(-50%);
+      border-radius: 28px;
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: var(--shadow-2);
+      font: inherit;
+      text-align: left;
+    }
+    .water app-icon {
+      color: #1e88e5;
+    }
+    .water .text {
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+    .water .text b {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .water .text span {
+      color: var(--text-2);
+    }
+    .spinner.small {
+      width: 22px;
+      height: 22px;
+      border-width: 2px;
     }
     .layers {
       position: absolute;
@@ -278,6 +378,7 @@ import { IconComponent } from './icon.component';
 export class MapComponent implements AfterViewInit {
   protected readonly maps = inject(MapService);
   protected readonly layers = inject(LayersService);
+  protected readonly water = inject(WaterService);
   private readonly canvas = viewChild.required<ElementRef<HTMLElement>>('canvas');
 
   protected readonly layersOpen = signal(false);
@@ -289,6 +390,21 @@ export class MapComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     void this.maps.init(this.canvas().nativeElement);
+  }
+
+  protected distance(metres: number): string {
+    const miles = metres / 1609.344;
+    const metric = metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toFixed(1)} km`;
+    return `${metric} (${miles < 0.1 ? Math.round(metres * 3.28084) + ' ft' : miles.toFixed(1) + ' mi'})`;
+  }
+
+  /** Eight-point compass name for a bearing in degrees. */
+  protected compass(bearing: number): string {
+    return ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(bearing / 45) % 8];
+  }
+
+  protected waterKind(kind: string | undefined): string {
+    return kind === 'stream' ? 'Unnamed stream' : kind === 'canal' ? 'Unnamed canal' : 'Unnamed river';
   }
 
   protected setType(type: MapType) {

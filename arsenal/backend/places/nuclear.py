@@ -1,13 +1,12 @@
 """Nuclear power plant data, sourced from OpenStreetMap (ODbL, https://www.openstreetmap.org/copyright)."""
 import json
 import re
-import urllib.parse
-import urllib.request
 from functools import lru_cache
 from pathlib import Path
 
+from . import overpass
+
 SNAPSHOT = Path(__file__).parent / 'data' / 'nuclear_plants.json'
-OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
 OVERPASS_QUERY = (
     '[out:json][timeout:120];'
     '(nwr["power"="plant"]["plant:source"="nuclear"];'
@@ -61,10 +60,7 @@ def parse_elements(elements):
 
 
 def fetch_plants():
-    body = urllib.parse.urlencode({'data': OVERPASS_QUERY}).encode()
-    request = urllib.request.Request(OVERPASS_URL, data=body, headers={'User-Agent': 'arsenal-app/1.0'})
-    with urllib.request.urlopen(request, timeout=180) as response:
-        return parse_elements(json.load(response)['elements'])
+    return parse_elements(overpass.run(OVERPASS_QUERY, timeout=180)['elements'])
 
 
 @lru_cache(maxsize=1)

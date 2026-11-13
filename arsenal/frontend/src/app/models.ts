@@ -35,6 +35,32 @@ export interface NuclearPlant {
   lng: number;
 }
 
+export type PoiCategory = 'hospital' | 'pharmacy' | 'grocery' | 'ammo';
+
+/** A hospital, pharmacy, grocery store or ammunition shop from OpenStreetMap, via Django. */
+export interface Poi {
+  id: string;
+  category: PoiCategory;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+/** Nearest river, stream or canal, as answered by Django. */
+export interface WaterResult {
+  found: boolean;
+  lat?: number;
+  lng?: number;
+  name?: string;
+  kind?: string;
+  distance_m?: number;
+  bearing_deg?: number;
+  /** How far the search reached when nothing was found. */
+  searched_m?: number;
+  /** A wider search timed out, so there may be water further out. */
+  incomplete?: boolean;
+}
+
 export interface SavedPlace {
   id: number;
   name: string;

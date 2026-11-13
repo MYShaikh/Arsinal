@@ -74,6 +74,47 @@ export function redDotContent(): HTMLElement {
   return el;
 }
 
+export type BadgeKind = 'hospital' | 'pharmacy' | 'grocery' | 'ammo';
+
+const BADGES: Record<BadgeKind, { background: string; symbol: string }> = {
+  hospital: {
+    background: '#d93025',
+    symbol: '<path fill="#fff" d="M5 4h3.5v6h7V4H19v16h-3.5v-6h-7v6H5z"/>',
+  },
+  pharmacy: {
+    background: '#188038',
+    symbol: '<path fill="#fff" d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/>',
+  },
+  grocery: {
+    background: '#ef6c00',
+    symbol:
+      '<path fill="#fff" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>',
+  },
+  ammo: {
+    background: '#3c4043',
+    symbol: '<g fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="6"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></g>',
+  },
+};
+
+/** Round badge with a symbol, used for the places Arsenal shows besides the nuclear plants. */
+export function badgeContent(kind: BadgeKind): HTMLElement {
+  const badge = BADGES[kind];
+  const el = document.createElement('div');
+  el.style.cssText =
+    `width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:${badge.background};` +
+    'border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3),0 1px 4px rgba(0,0,0,.5)';
+  el.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16">${badge.symbol}</svg>`;
+  return el;
+}
+
+export function waterDotContent(): HTMLElement {
+  const el = document.createElement('div');
+  el.style.cssText =
+    'width:16px;height:16px;border-radius:50%;background:#1e88e5;border:2px solid #fff;' +
+    'box-shadow:0 0 0 1px rgba(0,0,0,.35),0 1px 4px rgba(0,0,0,.5)';
+  return el;
+}
+
 export function pinContent(color: string): HTMLElement {
   const el = document.createElement('div');
   el.style.cssText = 'line-height:0;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))';

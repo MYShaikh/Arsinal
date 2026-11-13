@@ -11,9 +11,16 @@ arsenal/
 
 ## Features
 
-- Only nuclear power plants are marked: Google's restaurant, shop and hotel icons are hidden, and each of the 209
-  plants is a red dot with a translucent 100 m red circle (data from OpenStreetMap, served by Django at `/api/nuclear/`;
-  refresh with `manage.py update_nuclear_plants`)
+- Google's restaurant, shop and hotel icons are hidden. Arsenal draws only:
+  - **Nuclear power plants**: 209 red dots, each with a translucent 100 m red circle (`/api/nuclear/`;
+    refresh with `manage.py update_nuclear_plants`)
+  - **Hospitals, pharmacies, grocery stores, ammunition shops**: every one mapped in OpenStreetMap, loaded per
+    map tile when zoomed in to city level (`/api/poi/<x>/<y>/`)
+  - **Nearest flowing water**: an always-on arrow, distance and dashed line to the closest river, stream or canal,
+    measured from your live location or the map centre (`/api/water/nearest/`)
+  - Each layer has a checkbox at the top right of the map
+- OpenStreetMap data comes through Django from the free public Overpass servers, which are sometimes slow or busy.
+  Arsenal tries several, caches answers and retries as you move the map.
 - Full-screen Google Map with zoom, "my location", Default / Satellite / Terrain layers and a traffic overlay
 - Place search with autocomplete (Places API New), place details (photo, rating, hours, phone, website)
 - Click any point of interest or empty spot on the map to inspect it or drop a pin

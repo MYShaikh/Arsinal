@@ -3,7 +3,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from . import nuclear
+from . import nuclear, pois, water
+from .overpass import OverpassError
 from .models import RecentSearch, SavedPlace
 from .serializers import RecentSearchSerializer, SavedPlaceSerializer
 
@@ -25,6 +26,36 @@ def health(request):
 def nuclear_plants(request):
     """Operating nuclear power plants worldwide (OpenStreetMap data; refresh with update_nuclear_plants)."""
     return Response(nuclear.load_snapshot())
+
+
+OSM_BUSY = {'detail': 'The OpenStreetMap data service is busy. Try again shortly.'}
+
+
+@api_view(['GET'])
+def poi_tile(request, x, y):
+    """Hospitals, pharmacies, grocery stores and ammunition shops in one zoom-12 map tile."""
+    limit = 2**pois.TILE_ZOOM
+    if not (0 <= x < limit and 0 <= y < limit):
+        return Response({'detail': 'Tile out of range.'}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        return Response(pois.fetch_tile(x, y))
+    except OverpassError:
+        return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
+
+
+@api_view(['GET'])
+def nearest_water(request):
+    """Nearest river, stream or canal to ?lat=&lng= with its distance and compass bearing."""
+    try:
+        lat, lng = float(request.query_params['lat']), float(request.query_params['lng'])
+    except (KeyError, ValueError):
+        return Response({'detail': 'lat and lng are required numbers.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        return Response({'detail': 'lat or lng is out of range.'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        return Response(water.nearest_flowing_water(lat, lng))
+    except OverpassError:
+        return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
 
 
 class SavedPlaceViewSet(viewsets.ModelViewSet):

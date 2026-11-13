@@ -9,6 +9,7 @@ import { LayersService } from './layers.service';
 import { DARK_THEME, HIDE_DEFAULT_PLACES } from './map-style';
 import { PlacesStore } from './places.store';
 import { ToastService } from './toast.service';
+import { WaterService } from './water.service';
 
 export type MapStatus = 'loading' | 'ready' | 'no-key' | 'api-down' | 'error';
 
@@ -49,6 +50,7 @@ export class MapService {
   private readonly store = inject(PlacesStore);
   private readonly toast = inject(ToastService);
   private readonly layers = inject(LayersService);
+  private readonly water = inject(WaterService);
 
   readonly status = signal<MapStatus>('loading');
   readonly errorDetail = signal('');
@@ -151,6 +153,17 @@ export class MapService {
       map: this.map,
       createMarker: this.createMarker,
       select: (place) => this.show(place),
+    });
+    this.water.attach({
+      map: this.map,
+      createMarker: this.createMarker,
+      userLocation: this.userLocation,
+      reference: () => {
+        const here = this.userLocation();
+        if (here) return { ...here, source: 'you' };
+        const centre = this.map!.getCenter()!;
+        return { lat: centre.lat(), lng: centre.lng(), source: 'map' };
+      },
     });
     void this.locateIfAlreadyAllowed();
   }

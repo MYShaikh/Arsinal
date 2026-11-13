@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import override_settings
 from rest_framework.test import APITestCase
 
@@ -77,3 +79,136 @@ class NuclearTests(APITestCase):
         data = self.client.get('/api/nuclear/').data
         self.assertGreater(len(data), 150)
         self.assertEqual(set(data[0]), {'id', 'name', 'operator', 'capacity_mw', 'lat', 'lng'})
+
+
+class OverpassClientTests(APITestCase):
+    def setUp(self):
+        from . import overpass
+
+        overpass._down_until.clear()
+
+    def test_falls_back_to_the_next_instance_and_avoids_the_failed_one(self):
+        import io
+        import urllib.error
+
+        from . import overpass
+
+        calls = []
+
+        def fake_urlopen(request, timeout):
+            calls.append(request.full_url)
+            if request.full_url == overpass.ENDPOINTS[0]:
+                raise urllib.error.URLError('down')
+            return io.BytesIO(b'{"elements": []}')
+
+        with mock.patch('urllib.request.urlopen', fake_urlopen):
+            self.assertEqual(overpass.run('q'), {'elements': []})
+            self.assertEqual(overpass.run('q'), {'elements': []})
+        # The second call skipped the instance that had just failed.
+        self.assertEqual(calls, [overpass.ENDPOINTS[0], overpass.ENDPOINTS[1], overpass.ENDPOINTS[1]])
+
+    def test_raises_when_every_instance_fails(self):
+        import urllib.error
+
+        from . import overpass
+
+        with mock.patch('urllib.request.urlopen', side_effect=urllib.error.URLError('down')):
+            with self.assertRaises(overpass.OverpassError):
+                overpass.run('q')
+
+
+class PoiTests(APITestCase):
+    def setUp(self):
+        from . import pois
+
+        pois._cache.clear()
+
+    def test_classify(self):
+        from .pois import classify
+
+        self.assertEqual(classify({'amenity': 'hospital'}), 'hospital')
+        self.assertEqual(classify({'healthcare': 'pharmacy'}), 'pharmacy')
+        self.assertEqual(classify({'shop': 'supermarket'}), 'grocery')
+        self.assertEqual(classify({'shop': 'weapons'}), 'ammo')
+        self.assertIsNone(classify({'amenity': 'restaurant'}))
+
+    def test_tile_bounds_cover_the_world_at_zoom_zero(self):
+        from .pois import tile_bounds
+
+        south, west, north, east = tile_bounds(0, 0, zoom=0)
+        self.assertEqual((west, east), (-180, 180))
+        self.assertAlmostEqual(north, 85.0511, places=3)
+        self.assertAlmostEqual(south, -85.0511, places=3)
+
+    def test_tile_endpoint_parses_and_caches(self):
+        elements = [
+            {'type': 'node', 'id': 1, 'lat': 33.1, 'lon': -84.2, 'tags': {'amenity': 'hospital', 'name': 'General'}},
+            {'type': 'way', 'id': 2, 'center': {'lat': 33.2, 'lon': -84.3}, 'tags': {'shop': 'weapons'}},
+            {'type': 'node', 'id': 3, 'lat': 33.3, 'lon': -84.4, 'tags': {'amenity': 'cafe'}},
+        ]
+        with mock.patch('places.overpass.run', return_value={'elements': elements}) as run:
+            first = self.client.get('/api/poi/1100/1650/').data
+            self.client.get('/api/poi/1100/1650/')
+        self.assertEqual([p['category'] for p in first], ['hospital', 'ammo'])
+        self.assertEqual(run.call_count, 1)
+
+    def test_tile_out_of_range(self):
+        self.assertEqual(self.client.get('/api/poi/5000/1/').status_code, 404)
+
+    def test_tile_reports_busy_overpass(self):
+        from .overpass import OverpassError
+
+        with mock.patch('places.overpass.run', side_effect=OverpassError('down')):
+            self.assertEqual(self.client.get('/api/poi/1100/1650/').status_code, 502)
+
+
+class WaterTests(APITestCase):
+    def setUp(self):
+        from . import water
+
+        water._cache.clear()
+
+    def test_nearest_point_on_a_river_south_of_the_user(self):
+        river = {
+            'type': 'way',
+            'id': 9,
+            'tags': {'waterway': 'river', 'name': 'Test River'},
+            'geometry': [{'lat': 1.0, 'lon': -1.0}, {'lat': 1.0, 'lon': 1.0}],
+        }
+        with mock.patch('places.overpass.run', return_value={'elements': [river]}):
+            data = self.client.get('/api/water/nearest/', {'lat': 1.01, 'lng': 0.0}).data
+        self.assertTrue(data['found'])
+        self.assertEqual(data['name'], 'Test River')
+        self.assertAlmostEqual(data['lat'], 1.0, places=3)
+        self.assertAlmostEqual(data['lng'], 0.0, places=3)
+        self.assertAlmostEqual(data['distance_m'], 1112, delta=15)
+        self.assertEqual(data['bearing_deg'], 180)
+
+    def test_widens_the_search_until_water_is_found(self):
+        stream = {
+            'type': 'way',
+            'id': 9,
+            'tags': {'waterway': 'stream'},
+            'geometry': [{'lat': 0.0, 'lon': 0.0}, {'lat': 0.0, 'lon': 0.1}],
+        }
+        answers = [{'elements': []}, {'elements': [stream]}]
+        with mock.patch('places.overpass.run', side_effect=answers) as run:
+            data = self.client.get('/api/water/nearest/', {'lat': 0.02, 'lng': 0.05}).data
+        self.assertTrue(data['found'])
+        self.assertEqual(run.call_count, 2)
+
+    def test_nothing_nearby(self):
+        with mock.patch('places.overpass.run', return_value={'elements': []}):
+            data = self.client.get('/api/water/nearest/', {'lat': 5, 'lng': 5}).data
+        self.assertEqual(data, {'found': False, 'searched_m': 80000})
+
+    def test_reports_incomplete_search_when_a_wide_query_fails(self):
+        from .overpass import OverpassError
+
+        with mock.patch('places.overpass.run', side_effect=[{'elements': []}, OverpassError('slow')]):
+            data = self.client.get('/api/water/nearest/', {'lat': 5, 'lng': 5}).data
+        self.assertEqual(data, {'found': False, 'searched_m': 1500, 'incomplete': True})
+
+    def test_validates_input(self):
+        self.assertEqual(self.client.get('/api/water/nearest/').status_code, 400)
+        self.assertEqual(self.client.get('/api/water/nearest/', {'lat': 95, 'lng': 0}).status_code, 400)
