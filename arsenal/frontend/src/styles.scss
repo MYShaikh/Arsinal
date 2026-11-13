@@ -1,0 +1,55 @@
+:root {
+  color-scheme: light dark;
+
+  --bg: #fff;
+  --surface: #f1f3f4;
+  --hover: #f1f3f4;
+  --map-bg: #e8eaed;
+  --border: #dadce0;
+  --text: #202124;
+  --text-2: #5f6368;
+  --primary: #1a73e8;
+  --primary-dark: #1765cc;
+  --primary-tint: #e8f0fe;
+  --shadow-1: 0 1px 4px rgba(60, 64, 67, 0.3);
+  --shadow-2: 0 2px 10px rgba(60, 64, 67, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #202124;
+    --surface: #303134;
+    --hover: #303134;
+    --map-bg: #17181a;
+    --border: #3c4043;
+    --text: #e8eaed;
+    --text-2: #9aa0a6;
+    --primary: #8ab4f8;
+    --primary-dark: #aecbfa;
+    --primary-tint: #2b3a55;
+    --shadow-1: 0 1px 4px rgba(0, 0, 0, 0.6);
+    --shadow-2: 0 2px 10px rgba(0, 0, 0, 0.7);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

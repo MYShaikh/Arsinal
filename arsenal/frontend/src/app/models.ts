@@ -1,0 +1,65 @@
+export type Category = 'favorite' | 'want_to_go' | 'starred';
+export type TravelMode = 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT';
+export type MapType = 'roadmap' | 'hybrid' | 'terrain';
+
+export const CATEGORIES: { value: Category; label: string; color: string }[] = [
+  { value: 'favorite', label: 'Favorite', color: '#d93025' },
+  { value: 'want_to_go', label: 'Want to go', color: '#188038' },
+  { value: 'starred', label: 'Starred', color: '#f9ab00' },
+];
+
+/** A place as the UI sees it, whether it came from Google, a map click or the Django API. */
+export interface PlaceInfo {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  placeId?: string;
+  rating?: number;
+  ratingCount?: number;
+  website?: string;
+  phone?: string;
+  photoUrl?: string;
+  openNow?: boolean;
+  hours?: string[];
+}
+
+export interface SavedPlace {
+  id: number;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  google_place_id: string;
+  category: Category;
+  note: string;
+  created_at: string;
+}
+
+export interface RecentSearch {
+  id: number;
+  query: string;
+  address: string;
+  lat: number;
+  lng: number;
+  google_place_id: string;
+  created_at: string;
+}
+
+export interface Suggestion {
+  text: string;
+  main: string;
+  secondary: string;
+  prediction: google.maps.places.PlacePrediction;
+}
+
+export interface RouteStep {
+  instructions: string;
+  distance: string;
+}
+
+export interface RouteInfo {
+  distance: string;
+  duration: string;
+  steps: RouteStep[];
+}
