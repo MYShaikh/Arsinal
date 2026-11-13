@@ -1,6 +1,7 @@
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
 
-import { PlaceInfo, TravelMode } from '../models';
+import { bearingDeg, compass, distanceMetres, formatDistance } from '../geo';
+import { PlaceInfo, RouteRequest, TravelMode } from '../models';
 import { MapService } from '../services/map.service';
 import { IconComponent } from './icon.component';
 import { PlaceSearchComponent } from './place-search.component';
@@ -53,6 +54,12 @@ import { PlaceSearchComponent } from './place-search.component';
       <p class="note">Finding the best route…</p>
     } @else if (error()) {
       <p class="note error">{{ error() }}</p>
+      @if (straight()) {
+        <div class="summary">
+          <span class="time">{{ straight() }}</span>
+          <span class="dist">in a straight line</span>
+        </div>
+      }
     } @else if (maps.route(); as r) {
       <div class="summary">
         <span class="time">{{ r.duration }}</span>
@@ -185,8 +192,8 @@ import { PlaceSearchComponent } from './place-search.component';
 export class DirectionsComponent {
   protected readonly maps = inject(MapService);
 
-  /** Pre-fills the destination, e.g. from the Directions button on a place card. */
-  readonly destination = input<PlaceInfo | null>(null);
+  /** A route to show straight away, e.g. from a place card's Directions button or the Nearest tab. */
+  readonly request = input<RouteRequest | null>(null);
 
   protected readonly modes: { value: TravelMode; icon: string; label: string }[] = [
     { value: 'DRIVING', icon: 'car', label: 'Driving' },
@@ -202,14 +209,23 @@ export class DirectionsComponent {
   protected readonly destText = signal('');
   protected readonly loading = signal(false);
   protected readonly error = signal('');
+  /** Straight-line distance and compass direction, shown when no route could be found. */
+  protected readonly straight = signal('');
 
   private requestId = 0;
 
   constructor() {
     effect(() => {
-      const d = this.destination();
-      if (!d) return;
-      untracked(() => this.setDest(d));
+      const request = this.request();
+      if (!request) return;
+      untracked(() => {
+        if (request.mode) this.mode.set(request.mode);
+        if (request.origin) {
+          this.origin.set({ lat: request.origin.lat, lng: request.origin.lng });
+          this.originText.set(request.origin.name);
+        }
+        this.setDest(request.destination);
+      });
     });
   }
 
@@ -251,6 +267,7 @@ export class DirectionsComponent {
     const [origin, dest] = [this.origin(), this.dest()];
     const id = ++this.requestId;
     this.error.set('');
+    this.straight.set('');
     if (!origin || !dest) {
       this.maps.clearRoute();
       return;
@@ -258,10 +275,17 @@ export class DirectionsComponent {
     this.loading.set(true);
     try {
       await this.maps.showRoute(origin, dest, this.mode());
-    } catch {
+    } catch (e) {
       if (id === this.requestId) {
-        this.maps.clearRoute();
-        this.error.set(`No ${this.mode().toLowerCase()} route found between those places.`);
+        // No route, or the Routes API is not enabled for the key: still point the way.
+        this.maps.showStraightLine(origin, dest);
+        const denied = /PERMISSION_DENIED|not enabled|not authorized/i.test(String((e as Error)?.message ?? e));
+        this.error.set(
+          denied
+            ? 'Turn-by-turn routes need the Routes API enabled for your Google key. Showing the straight-line direction instead.'
+            : `Couldn't get a ${this.mode().toLowerCase()} route between those places. Showing the straight-line direction instead.`,
+        );
+        this.straight.set(`${formatDistance(distanceMetres(origin, dest))} ${compass(bearingDeg(origin, dest))}`);
       }
     } finally {
       if (id === this.requestId) this.loading.set(false);

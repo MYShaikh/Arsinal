@@ -46,9 +46,20 @@ export interface Poi {
   lng: number;
 }
 
-/** Nearest river, stream or canal, as answered by Django. */
+/** What the sidebar's Nearest tab can look for. */
+export type NearestCategory = PoiCategory | 'nuclear' | 'water';
+
+/** A route the sidebar asks the directions panel to show. */
+export interface RouteRequest {
+  destination: PlaceInfo;
+  origin?: { lat: number; lng: number; name: string };
+  mode?: TravelMode;
+}
+
+/** Nearest place of a category (or river, stream or canal), as answered by Django. */
 export interface WaterResult {
   found: boolean;
+  category?: string;
   lat?: number;
   lng?: number;
   name?: string;
@@ -60,6 +71,8 @@ export interface WaterResult {
   /** A wider search timed out, so there may be water further out. */
   incomplete?: boolean;
 }
+
+export type NearestResult = WaterResult;
 
 export interface SavedPlace {
   id: number;

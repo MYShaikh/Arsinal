@@ -63,6 +63,8 @@ export class MapService {
   readonly tracking = signal(false);
   /** The map re-centres on every position update. Dragging the map turns this off. */
   readonly following = signal(false);
+  /** The user's position is a pretend one set with simulateLocation, not from GPS. */
+  readonly simulated = signal(false);
   readonly userLocation = signal<google.maps.LatLngLiteral | null>(null);
 
   private map?: google.maps.Map;
@@ -158,12 +160,7 @@ export class MapService {
       map: this.map,
       createMarker: this.createMarker,
       userLocation: this.userLocation,
-      reference: () => {
-        const here = this.userLocation();
-        if (here) return { ...here, source: 'you' };
-        const centre = this.map!.getCenter()!;
-        return { lat: centre.lat(), lng: centre.lng(), source: 'map' };
-      },
+      reference: () => this.referencePoint()!,
     });
     void this.locateIfAlreadyAllowed();
   }
@@ -273,7 +270,11 @@ export class MapService {
    * If the user has panned away, a press re-centres on them; a press while following stops tracking.
    */
   locateMe() {
-    if (!this.tracking()) {
+    if (this.simulated()) {
+      // Back from a pretend position to the real one.
+      this.stopTracking();
+      this.startTracking();
+    } else if (!this.tracking()) {
       this.startTracking();
     } else if (!this.following()) {
       const here = this.userLocation();
@@ -321,10 +322,32 @@ export class MapService {
     this.tracking.set(false);
     this.following.set(false);
     this.locating.set(false);
+    this.simulated.set(false);
+    this.userLocation.set(null);
     this.userMarker?.setMap(null);
     this.userMarker = undefined;
     this.accuracyCircle?.setMap(null);
     this.accuracyCircle = undefined;
+  }
+
+  /**
+   * Pretends the user is standing at a point, so location features (nearest places, the nuclear plant alert)
+   * can be tried without travelling. The location button returns to the real position.
+   */
+  simulateLocation(lat: number, lng: number) {
+    this.stopTracking();
+    this.simulated.set(true);
+    this.userLocation.set({ lat, lng });
+    this.drawUserMarker({ lat, lng });
+    this.toast.show('Simulated location set. Press the location button to go back to your real position.', 6000);
+  }
+
+  /** Where "nearest" searches measure from: the user if known, otherwise the centre of the map. */
+  referencePoint(): { lat: number; lng: number; source: 'you' | 'map' } | null {
+    const here = this.userLocation();
+    if (here) return { ...here, source: 'you' };
+    const centre = this.map?.getCenter();
+    return centre ? { lat: centre.lat(), lng: centre.lng(), source: 'map' } : null;
   }
 
   /** One-off position lookup, used by directions. Centres the map on the user. */
@@ -384,6 +407,26 @@ export class MapService {
     };
     this.route.set(info);
     return info;
+  }
+
+  /** Dashed straight line between two points, for when no route is available. Cleared with the route. */
+  showStraightLine(origin: google.maps.LatLngLiteral, destination: google.maps.LatLngLiteral) {
+    this.clearRoute();
+    if (!this.map) return;
+    this.routeLines = [
+      new google.maps.Polyline({
+        map: this.map,
+        path: [origin, destination],
+        strokeOpacity: 0,
+        clickable: false,
+        icons: [
+          { icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#1a73e8', strokeWeight: 4, scale: 3 }, offset: '0', repeat: '16px' },
+        ],
+      }),
+    ];
+    const bounds = new google.maps.LatLngBounds(origin);
+    bounds.extend(destination);
+    this.map.fitBounds(bounds, 80);
   }
 
   clearRoute() {

@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 
+import { compass, formatDistance } from '../geo';
 import { MapType } from '../models';
 import { LayersService } from '../services/layers.service';
 import { MapService } from '../services/map.service';
@@ -392,16 +393,8 @@ export class MapComponent implements AfterViewInit {
     void this.maps.init(this.canvas().nativeElement);
   }
 
-  protected distance(metres: number): string {
-    const miles = metres / 1609.344;
-    const metric = metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toFixed(1)} km`;
-    return `${metric} (${miles < 0.1 ? Math.round(metres * 3.28084) + ' ft' : miles.toFixed(1) + ' mi'})`;
-  }
-
-  /** Eight-point compass name for a bearing in degrees. */
-  protected compass(bearing: number): string {
-    return ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(bearing / 45) % 8];
-  }
+  protected readonly distance = formatDistance;
+  protected readonly compass = compass;
 
   protected waterKind(kind: string | undefined): string {
     return kind === 'stream' ? 'Unnamed stream' : kind === 'canal' ? 'Unnamed canal' : 'Unnamed river';

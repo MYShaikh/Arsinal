@@ -58,6 +58,8 @@ export class LayersService {
   /** True while the map is zoomed out too far to load hospitals, pharmacies, grocery stores and ammunition shops. */
   readonly zoomedOut = signal(false);
   readonly loadingTiles = signal(0);
+  /** Every nuclear plant, once loaded. The proximity alert measures against these. */
+  readonly plants = signal<NuclearPlant[]>([]);
 
   private ctx?: LayerContext;
   private dots: MapMarker[] = [];
@@ -104,6 +106,7 @@ export class LayersService {
       this.toast.show('Could not load nuclear power plants from the Arsenal API.');
       return;
     }
+    this.plants.set(plants);
     this.counts.update((c) => ({ ...c, nuclear: plants.length }));
 
     const map = this.enabled().nuclear ? ctx.map : null;

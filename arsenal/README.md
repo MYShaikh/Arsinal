@@ -19,6 +19,13 @@ arsenal/
   - **Nearest flowing water**: an always-on arrow, distance and dashed line to the closest river, stream or canal,
     measured from your live location or the map centre (`/api/water/nearest/`)
   - Each layer has a checkbox at the top right of the map
+- **Nearest tab** (sidebar): pick Walk or Drive, then a type (hospital, pharmacy, grocery store, ammunition shop,
+  flowing water, nuclear power plant). Arsenal finds the closest one (`/api/nearest/`) and routes to it. If Google
+  cannot route (for example the Routes API is not enabled), it draws a straight line with distance and compass direction.
+- **Nuclear plant alert**: a red banner, three beeps and a vibration whenever your position comes within 100 m of a
+  plant's mapped centre point. It clears once you are more than 120 m away.
+- **Simulate my location**: every place card has a link to pretend you are standing there, for trying the alert and
+  the nearest search without travelling. The location button returns to your real position.
 - OpenStreetMap data comes through Django from the free public Overpass servers, which are sometimes slow or busy.
   Arsenal tries several, caches answers and retries as you move the map.
 - Full-screen Google Map with zoom, "my location", Default / Satellite / Terrain layers and a traffic overlay

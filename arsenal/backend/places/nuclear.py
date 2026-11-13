@@ -5,6 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import overpass
+from .geo import bearing_deg, haversine_m
 
 SNAPSHOT = Path(__file__).parent / 'data' / 'nuclear_plants.json'
 OVERPASS_QUERY = (
@@ -61,6 +62,24 @@ def parse_elements(elements):
 
 def fetch_plants():
     return parse_elements(overpass.run(OVERPASS_QUERY, timeout=180)['elements'])
+
+
+def nearest(lat, lng):
+    """Closest plant in the bundled snapshot to a point."""
+    plants = load_snapshot()
+    if not plants:
+        return {'found': False}
+    best = min(plants, key=lambda p: haversine_m(lat, lng, p['lat'], p['lng']))
+    return {
+        'found': True,
+        'category': 'nuclear',
+        'id': best['id'],
+        'name': best['name'],
+        'lat': best['lat'],
+        'lng': best['lng'],
+        'distance_m': round(haversine_m(lat, lng, best['lat'], best['lng'])),
+        'bearing_deg': round(bearing_deg(lat, lng, best['lat'], best['lng'])),
+    }
 
 
 @lru_cache(maxsize=1)

@@ -1,19 +1,20 @@
 import { Component, inject, signal } from '@angular/core';
 
-import { PlaceInfo, RecentSearch } from '../models';
+import { PlaceInfo, RecentSearch, RouteRequest } from '../models';
 import { MapService } from '../services/map.service';
 import { PlacesStore } from '../services/places.store';
 import { DirectionsComponent } from './directions.component';
 import { IconComponent } from './icon.component';
+import { NearestComponent } from './nearest.component';
 import { PlaceCardComponent } from './place-card.component';
 import { PlaceSearchComponent } from './place-search.component';
 import { SavedListComponent } from './saved-list.component';
 
-type View = 'explore' | 'saved' | 'directions';
+type View = 'explore' | 'nearest' | 'saved' | 'directions';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [IconComponent, PlaceSearchComponent, PlaceCardComponent, SavedListComponent, DirectionsComponent],
+  imports: [IconComponent, PlaceSearchComponent, PlaceCardComponent, SavedListComponent, DirectionsComponent, NearestComponent],
   template: `
     <header>
       <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
@@ -41,6 +42,9 @@ type View = 'explore' | 'saved' | 'directions';
     <nav role="tablist">
       <button type="button" role="tab" [attr.aria-selected]="view() === 'explore'" [class.sel]="view() === 'explore'" (click)="go('explore')">
         <app-icon name="explore" [size]="20" /> Explore
+      </button>
+      <button type="button" role="tab" [attr.aria-selected]="view() === 'nearest'" [class.sel]="view() === 'nearest'" (click)="go('nearest')">
+        <app-icon name="place" [size]="20" /> Nearest
       </button>
       <button type="button" role="tab" [attr.aria-selected]="view() === 'saved'" [class.sel]="view() === 'saved'" (click)="go('saved')">
         <app-icon name="bookmark" [size]="20" /> Saved
@@ -87,11 +91,14 @@ type View = 'explore' | 'saved' | 'directions';
             </div>
           }
         }
+        @case ('nearest') {
+          <app-nearest (route)="routeTo($event)" />
+        }
         @case ('saved') {
           <app-saved-list />
         }
         @case ('directions') {
-          <app-directions [destination]="destination()" />
+          <app-directions [request]="routeRequest()" />
         }
       }
     </div>
@@ -133,14 +140,15 @@ type View = 'explore' | 'saved' | 'directions';
       flex: 1;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
       height: 46px;
+      padding: 0 2px;
       border: 0;
       border-bottom: 3px solid transparent;
       background: none;
       color: var(--text-2);
       font: inherit;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
     }
     nav button:hover {
@@ -245,7 +253,7 @@ export class SidebarComponent {
 
   protected readonly view = signal<View>('explore');
   protected readonly query = signal('');
-  protected readonly destination = signal<PlaceInfo | null>(null);
+  protected readonly routeRequest = signal<RouteRequest | null>(null);
 
   constructor() {
     void this.store.load();
@@ -270,7 +278,12 @@ export class SidebarComponent {
   }
 
   protected directionsTo(place: PlaceInfo) {
-    this.destination.set(place);
+    this.routeTo({ destination: place });
+  }
+
+  protected routeTo(request: RouteRequest) {
+    this.maps.show(request.destination);
+    this.routeRequest.set(request);
     this.view.set('directions');
   }
 }

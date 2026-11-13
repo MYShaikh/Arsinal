@@ -3,6 +3,7 @@ import { Injectable, Signal, effect, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { API_BASE } from '../config';
+import { bearingDeg, distanceMetres } from '../geo';
 import { WaterResult } from '../models';
 import { MapMarker, MarkerFactory, waterDotContent } from './html-marker';
 
@@ -150,18 +151,4 @@ export class WaterService {
     this.marker?.setMap(null);
     this.marker = undefined;
   }
-}
-
-function distanceMetres(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral): number {
-  const rad = (d: number) => (d * Math.PI) / 180;
-  const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lng - a.lng) / 2) ** 2;
-  return 2 * 6371000 * Math.asin(Math.sqrt(h));
-}
-
-/** Compass bearing from a to b: 0 is north, 90 east. */
-function bearingDeg(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral): number {
-  const rad = (d: number) => (d * Math.PI) / 180;
-  const y = Math.sin(rad(b.lng - a.lng)) * Math.cos(rad(b.lat));
-  const x = Math.cos(rad(a.lat)) * Math.sin(rad(b.lat)) - Math.sin(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.cos(rad(b.lng - a.lng));
-  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }

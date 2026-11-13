@@ -162,6 +162,41 @@ class PoiTests(APITestCase):
             self.assertEqual(self.client.get('/api/poi/1100/1650/').status_code, 502)
 
 
+class NearestPlaceTests(APITestCase):
+    def setUp(self):
+        from . import pois
+
+        pois._nearest_cache.clear()
+
+    def test_picks_the_closest_of_the_requested_category(self):
+        elements = [
+            {'type': 'node', 'id': 1, 'lat': 0.05, 'lon': 0.0, 'tags': {'amenity': 'hospital', 'name': 'Far'}},
+            {'type': 'node', 'id': 2, 'lat': 0.01, 'lon': 0.0, 'tags': {'amenity': 'hospital', 'name': 'Near'}},
+        ]
+        with mock.patch('places.overpass.run', return_value={'elements': elements}):
+            data = self.client.get('/api/nearest/', {'lat': 0, 'lng': 0, 'category': 'hospital'}).data
+        self.assertEqual(data['name'], 'Near')
+        self.assertAlmostEqual(data['distance_m'], 1112, delta=15)
+        self.assertEqual(data['bearing_deg'], 0)
+
+    def test_widens_until_found(self):
+        shop = {'type': 'node', 'id': 3, 'lat': 0.2, 'lon': 0.0, 'tags': {'shop': 'weapons'}}
+        with mock.patch('places.overpass.run', side_effect=[{'elements': []}, {'elements': [shop]}]) as run:
+            data = self.client.get('/api/nearest/', {'lat': 0, 'lng': 0, 'category': 'ammo'}).data
+        self.assertTrue(data['found'])
+        self.assertEqual(run.call_count, 2)
+
+    def test_nearest_nuclear_plant_uses_the_snapshot(self):
+        with mock.patch('places.overpass.run') as run:
+            data = self.client.get('/api/nearest/', {'lat': 33.8, 'lng': -84.2, 'category': 'nuclear'}).data
+        self.assertTrue(data['found'])
+        self.assertEqual(data['category'], 'nuclear')
+        run.assert_not_called()
+
+    def test_unknown_category(self):
+        self.assertEqual(self.client.get('/api/nearest/', {'lat': 0, 'lng': 0, 'category': 'cafe'}).status_code, 400)
+
+
 class WaterTests(APITestCase):
     def setUp(self):
         from . import water

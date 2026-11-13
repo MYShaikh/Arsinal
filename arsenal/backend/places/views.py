@@ -43,19 +43,46 @@ def poi_tile(request, x, y):
         return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
 
 
-@api_view(['GET'])
-def nearest_water(request):
-    """Nearest river, stream or canal to ?lat=&lng= with its distance and compass bearing."""
+def _point(request):
+    """(lat, lng) from the query string, or an error Response."""
     try:
         lat, lng = float(request.query_params['lat']), float(request.query_params['lng'])
     except (KeyError, ValueError):
         return Response({'detail': 'lat and lng are required numbers.'}, status=status.HTTP_400_BAD_REQUEST)
     if not (-90 <= lat <= 90 and -180 <= lng <= 180):
         return Response({'detail': 'lat or lng is out of range.'}, status=status.HTTP_400_BAD_REQUEST)
+    return lat, lng
+
+
+@api_view(['GET'])
+def nearest_water(request):
+    """Nearest river, stream or canal to ?lat=&lng= with its distance and compass bearing."""
+    point = _point(request)
+    if isinstance(point, Response):
+        return point
     try:
-        return Response(water.nearest_flowing_water(lat, lng))
+        return Response(water.nearest_flowing_water(*point))
     except OverpassError:
         return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
+
+
+@api_view(['GET'])
+def nearest_place(request):
+    """Closest hospital, pharmacy, grocery, ammo shop, nuclear plant or flowing water to ?lat=&lng=&category=."""
+    point = _point(request)
+    if isinstance(point, Response):
+        return point
+    category = request.query_params.get('category')
+    try:
+        if category == 'nuclear':
+            return Response(nuclear.nearest(*point))
+        if category == 'water':
+            return Response(water.nearest_flowing_water(*point))
+        if category in pois.CATEGORIES:
+            return Response(pois.nearest(category, *point))
+    except OverpassError:
+        return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
+    return Response({'detail': 'Unknown category.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SavedPlaceViewSet(viewsets.ModelViewSet):

@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 
 import { CATEGORIES, Category, PlaceInfo } from '../models';
+import { MapService } from '../services/map.service';
 import { PlacesStore } from '../services/places.store';
 import { IconComponent } from './icon.component';
 
@@ -98,6 +99,13 @@ import { IconComponent } from './icon.component';
           <li class="coords">
             <app-icon name="explore" [size]="20" />
             <span>{{ p.lat.toFixed(5) }}, {{ p.lng.toFixed(5) }}</span>
+          </li>
+          <li>
+            <app-icon name="locate" [size]="20" />
+            <div>
+              <button type="button" class="link" (click)="maps.simulateLocation(p.lat, p.lng)">Simulate my location here</button>
+              <div class="hours">Pretend you are standing at this spot, to try the nearest-place search and the nuclear plant alert.</div>
+            </div>
           </li>
         </ul>
       </div>
@@ -253,6 +261,7 @@ import { IconComponent } from './icon.component';
 })
 export class PlaceCardComponent {
   protected readonly store = inject(PlacesStore);
+  protected readonly maps = inject(MapService);
 
   readonly place = input.required<PlaceInfo>();
   readonly directions = output<PlaceInfo>();

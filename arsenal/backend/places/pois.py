@@ -4,6 +4,7 @@ import threading
 import time
 
 from . import overpass
+from .geo import bearing_deg, haversine_m
 
 TILE_ZOOM = 12
 CACHE_TTL_SECONDS = 6 * 3600
@@ -60,6 +61,55 @@ def _query(south, west, north, east):
         f'nwr["shop"="weapons"]{box};'
         ');out center tags;'
     )
+
+
+NEAREST_RADII_M = (2000, 8000, 30000, 100000)
+_FILTERS = {
+    'hospital': ('["amenity"="hospital"]', '["healthcare"="hospital"]'),
+    'pharmacy': ('["amenity"="pharmacy"]', '["healthcare"="pharmacy"]'),
+    'grocery': ('["shop"~"^(supermarket|grocery)$"]',),
+    'ammo': ('["shop"="weapons"]',),
+}
+CATEGORIES = tuple(_FILTERS)
+_nearest_cache = {}
+
+
+def nearest(category, lat, lng):
+    """Closest place of one category to a point, searching outwards. Cached per ~100 m of position."""
+    key = (category, round(lat, 3), round(lng, 3))
+    now = time.monotonic()
+    with _lock:
+        hit = _nearest_cache.get(key)
+        if hit and now - hit[0] < CACHE_TTL_SECONDS:
+            return hit[1]
+
+    result = {'found': False, 'searched_m': NEAREST_RADII_M[-1]}
+    for index, radius in enumerate(NEAREST_RADII_M):
+        around = f'(around:{radius},{lat:.5f},{lng:.5f})'
+        query = '[out:json][timeout:25];(' + ''.join(f'nwr{around}{f};' for f in _FILTERS[category]) + ');out center tags;'
+        try:
+            elements = overpass.run(query)['elements']
+        except overpass.OverpassError:
+            if index == 0:
+                raise
+            # A wide search timed out. Say what was ruled out, and do not cache the gap.
+            return {'found': False, 'searched_m': NEAREST_RADII_M[index - 1], 'incomplete': True}
+        places = [p for p in parse_elements(elements) if p['category'] == category]
+        if places:
+            best = min(places, key=lambda p: haversine_m(lat, lng, p['lat'], p['lng']))
+            result = {
+                'found': True,
+                **best,
+                'distance_m': round(haversine_m(lat, lng, best['lat'], best['lng'])),
+                'bearing_deg': round(bearing_deg(lat, lng, best['lat'], best['lng'])),
+            }
+            break
+
+    with _lock:
+        if len(_nearest_cache) > 2000:
+            _nearest_cache.clear()
+        _nearest_cache[key] = (now, result)
+    return result
 
 
 def fetch_tile(x, y):

@@ -13,6 +13,7 @@ urlpatterns = [
     path('nuclear/', views.nuclear_plants),
     path('poi/<int:x>/<int:y>/', views.poi_tile),
     path('water/nearest/', views.nearest_water),
+    path('nearest/', views.nearest_place),
     path('recents/clear/', views.RecentSearchViewSet.as_view({'delete': 'clear'})),
     *router.urls,
 ]
