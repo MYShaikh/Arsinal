@@ -11,6 +11,9 @@ arsenal/
 
 ## Features
 
+- Only nuclear power plants are marked: Google's restaurant, shop and hotel icons are hidden, and each of the 209
+  plants is a red dot with a translucent 100 m red circle (data from OpenStreetMap, served by Django at `/api/nuclear/`;
+  refresh with `manage.py update_nuclear_plants`)
 - Full-screen Google Map with zoom, "my location", Default / Satellite / Terrain layers and a traffic overlay
 - Place search with autocomplete (Places API New), place details (photo, rating, hours, phone, website)
 - Click any point of interest or empty spot on the map to inspect it or drop a pin

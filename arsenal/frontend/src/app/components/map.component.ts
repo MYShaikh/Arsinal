@@ -63,18 +63,14 @@ import { IconComponent } from './icon.component';
         </button>
       </div>
 
-      <div class="legend" aria-label="Map layers">
-        @for (layer of layers.layers; track layer.id) {
-          <label>
-            <input type="checkbox" [checked]="layers.enabled()[layer.id]" (change)="layers.toggle(layer.id)" />
-            <i [style.background]="layer.color"></i>
-            {{ layer.label }}
-          </label>
+      <label class="legend">
+        <input type="checkbox" [checked]="layers.plantsVisible()" (change)="layers.toggle()" />
+        <i></i>
+        Nuclear power plants
+        @if (layers.plantCount()) {
+          <span>{{ layers.plantCount() }}</span>
         }
-        @if (layers.zoomedOut()) {
-          <p>Zoom in to see hospitals, pharmacies and gun stores.</p>
-        }
-      </div>
+      </label>
 
       <div class="layers">
         @if (layersOpen()) {
@@ -174,33 +170,25 @@ import { IconComponent } from './icon.component';
       right: 16px;
       z-index: 4;
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+      align-items: center;
+      gap: 8px;
       padding: 8px 14px 8px 10px;
       border-radius: 8px;
       background: var(--bg);
       box-shadow: var(--shadow-1);
       font-size: 13px;
-    }
-    .legend label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 3px 0;
       cursor: pointer;
     }
     .legend i {
       width: 12px;
       height: 12px;
-      border: 1px solid var(--border);
+      border: 2px solid #fff;
       border-radius: 50%;
+      background: #e53935;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
     }
-    .legend p {
-      max-width: 190px;
-      margin: 4px 0 0 24px;
+    .legend span {
       color: var(--text-2);
-      font-size: 12px;
-      line-height: 1.35;
     }
     .layers {
       position: absolute;

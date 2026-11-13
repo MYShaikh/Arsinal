@@ -149,10 +149,8 @@ export class MapService {
     this.drawSavedMarkers(this.store.saved());
     void this.layers.attach({
       map: this.map,
-      places: this.placesLib,
       createMarker: this.createMarker,
       select: (place) => this.show(place),
-      selectById: (placeId) => void this.selectPlaceId(placeId),
     });
     void this.locateIfAlreadyAllowed();
   }

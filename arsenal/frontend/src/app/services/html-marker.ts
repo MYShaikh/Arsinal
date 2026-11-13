@@ -66,59 +66,11 @@ export function createMarkerFactory(): MarkerFactory {
 
 // ---- Marker artwork. Colours are fixed constants, never user input, so the innerHTML below is safe. ----
 
-export type BadgeKind = 'nuclear' | 'hospital' | 'pharmacy' | 'gun';
-
-/** Radiation trefoil: three 60 degree blades around a centre dot. */
-function trefoilPath(): string {
-  const point = (radius: number, degrees: number) => {
-    const t = ((degrees - 90) * Math.PI) / 180;
-    return `${(12 + radius * Math.cos(t)).toFixed(2)} ${(12 + radius * Math.sin(t)).toFixed(2)}`;
-  };
-  const blade = (centre: number) =>
-    `M${point(3.4, centre - 30)} L${point(9.2, centre - 30)} A9.2 9.2 0 0 1 ${point(9.2, centre + 30)} ` +
-    `L${point(3.4, centre + 30)} A3.4 3.4 0 0 0 ${point(3.4, centre - 30)} Z`;
-  return [0, 120, 240].map(blade).join(' ');
-}
-
-const BADGES: Record<BadgeKind, { size: number; background: string; border: string; glow: string; symbol: string }> = {
-  nuclear: {
-    size: 34,
-    background: '#ffd400',
-    border: '#111',
-    glow: '0 0 0 4px rgba(255,212,0,.35), 0 0 14px 3px rgba(255,212,0,.85)',
-    symbol: `<svg viewBox="0 0 24 24" width="24" height="24" fill="#111"><path d="${trefoilPath()}"/><circle cx="12" cy="12" r="2"/></svg>`,
-  },
-  hospital: {
-    size: 26,
-    background: '#d93025',
-    border: '#fff',
-    glow: '0 1px 4px rgba(0,0,0,.5)',
-    symbol: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M5 4h3.5v6h7V4H19v16h-3.5v-6h-7v6H5z"/></svg>',
-  },
-  pharmacy: {
-    size: 26,
-    background: '#188038',
-    border: '#fff',
-    glow: '0 1px 4px rgba(0,0,0,.5)',
-    symbol: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg>',
-  },
-  gun: {
-    size: 26,
-    background: '#3c4043',
-    border: '#fff',
-    glow: '0 1px 4px rgba(0,0,0,.5)',
-    symbol:
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="6"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></svg>',
-  },
-};
-
-export function badgeContent(kind: BadgeKind): HTMLElement {
-  const b = BADGES[kind];
+export function redDotContent(): HTMLElement {
   const el = document.createElement('div');
   el.style.cssText =
-    `width:${b.size}px;height:${b.size}px;border-radius:50%;display:grid;place-items:center;` +
-    `background:${b.background};border:2px solid ${b.border};box-shadow:${b.glow}`;
-  el.innerHTML = b.symbol;
+    'width:14px;height:14px;border-radius:50%;background:#e53935;border:2px solid #fff;' +
+    'box-shadow:0 0 0 1px rgba(0,0,0,.35),0 1px 4px rgba(0,0,0,.5)';
   return el;
 }
 
