@@ -74,6 +74,31 @@ export interface WaterResult {
 
 export type NearestResult = WaterResult;
 
+export type IdentifyKind = 'track' | 'plant';
+export type Edibility = 'edible' | 'edible_with_preparation' | 'not_edible' | 'poisonous' | 'unknown' | 'not_applicable';
+
+export interface IdentifyCandidate {
+  common_name: string;
+  scientific_name: string;
+  likelihood: 'likely' | 'possible' | 'unlikely';
+  reasoning: string;
+  dangerous_to_humans: string;
+  edibility: Edibility;
+  toxicity: string;
+  medicinal_uses: string;
+  lookalikes: string;
+}
+
+/** What Django returns for a photo of an animal track or a plant. */
+export interface IdentifyResult {
+  subject: 'animal_track' | 'plant' | 'fungus' | 'other' | 'unclear';
+  summary: string;
+  confidence: 'high' | 'medium' | 'low';
+  candidates: IdentifyCandidate[];
+  safety_warning: string;
+  photo_tips: string;
+}
+
 export interface SavedPlace {
   id: number;
   name: string;

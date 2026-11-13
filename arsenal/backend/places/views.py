@@ -3,7 +3,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from . import nuclear, pois, water
+from . import identify, nuclear, pois, water
 from .overpass import OverpassError
 from .models import RecentSearch, SavedPlace
 from .serializers import RecentSearchSerializer, SavedPlaceSerializer
@@ -83,6 +83,35 @@ def nearest_place(request):
     except OverpassError:
         return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
     return Response({'detail': 'Unknown category.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def identify_photo(request):
+    """Identifies an animal track or plant from an uploaded photo (multipart: image, kind, optional lat/lng)."""
+    image = request.FILES.get('image')
+    kind = request.data.get('kind')
+    if image is None:
+        return Response({'detail': 'Attach a photo as "image".'}, status=status.HTTP_400_BAD_REQUEST)
+    if kind not in identify.KINDS:
+        return Response({'detail': 'kind must be "track" or "plant".'}, status=status.HTTP_400_BAD_REQUEST)
+    if image.content_type not in identify.MEDIA_TYPES:
+        return Response({'detail': 'The photo must be a JPEG, PNG, WebP or GIF.'}, status=status.HTTP_400_BAD_REQUEST)
+    if image.size > identify.MAX_IMAGE_BYTES:
+        return Response({'detail': 'The photo is larger than 5 MB.'}, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+
+    location = None
+    if 'lat' in request.data and 'lng' in request.data:
+        try:
+            lat, lng = float(request.data['lat']), float(request.data['lng'])
+        except ValueError:
+            return Response({'detail': 'lat and lng must be numbers.'}, status=status.HTTP_400_BAD_REQUEST)
+        if -90 <= lat <= 90 and -180 <= lng <= 180:
+            location = (lat, lng)
+
+    try:
+        return Response(identify.identify(image.read(), image.content_type, kind, location))
+    except identify.IdentifyError as error:
+        return Response({'detail': str(error)}, status=error.status)
 
 
 class SavedPlaceViewSet(viewsets.ModelViewSet):

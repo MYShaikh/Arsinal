@@ -5,16 +5,17 @@ import { MapService } from '../services/map.service';
 import { PlacesStore } from '../services/places.store';
 import { DirectionsComponent } from './directions.component';
 import { IconComponent } from './icon.component';
+import { IdentifyComponent } from './identify.component';
 import { NearestComponent } from './nearest.component';
 import { PlaceCardComponent } from './place-card.component';
 import { PlaceSearchComponent } from './place-search.component';
 import { SavedListComponent } from './saved-list.component';
 
-type View = 'explore' | 'nearest' | 'saved' | 'directions';
+type View = 'explore' | 'nearest' | 'identify' | 'saved' | 'directions';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [IconComponent, PlaceSearchComponent, PlaceCardComponent, SavedListComponent, DirectionsComponent, NearestComponent],
+  imports: [IconComponent, PlaceSearchComponent, PlaceCardComponent, SavedListComponent, DirectionsComponent, NearestComponent, IdentifyComponent],
   template: `
     <header>
       <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
@@ -45,6 +46,9 @@ type View = 'explore' | 'nearest' | 'saved' | 'directions';
       </button>
       <button type="button" role="tab" [attr.aria-selected]="view() === 'nearest'" [class.sel]="view() === 'nearest'" (click)="go('nearest')">
         <app-icon name="place" [size]="20" /> Nearest
+      </button>
+      <button type="button" role="tab" [attr.aria-selected]="view() === 'identify'" [class.sel]="view() === 'identify'" (click)="go('identify')">
+        <app-icon name="camera" [size]="20" /> Identify
       </button>
       <button type="button" role="tab" [attr.aria-selected]="view() === 'saved'" [class.sel]="view() === 'saved'" (click)="go('saved')">
         <app-icon name="bookmark" [size]="20" /> Saved
@@ -94,6 +98,9 @@ type View = 'explore' | 'nearest' | 'saved' | 'directions';
         @case ('nearest') {
           <app-nearest (route)="routeTo($event)" />
         }
+        @case ('identify') {
+          <app-identify />
+        }
         @case ('saved') {
           <app-saved-list />
         }
@@ -140,15 +147,16 @@ type View = 'explore' | 'nearest' | 'saved' | 'directions';
       flex: 1;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      height: 46px;
+      flex-direction: column;
+      gap: 2px;
+      height: 56px;
       padding: 0 2px;
       border: 0;
       border-bottom: 3px solid transparent;
       background: none;
       color: var(--text-2);
       font: inherit;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
     }
     nav button:hover {

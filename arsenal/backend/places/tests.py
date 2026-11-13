@@ -162,6 +162,78 @@ class PoiTests(APITestCase):
             self.assertEqual(self.client.get('/api/poi/1100/1650/').status_code, 502)
 
 
+class IdentifyTests(APITestCase):
+    RESULT = {
+        'subject': 'plant',
+        'summary': 'Probably pokeweed.',
+        'confidence': 'medium',
+        'candidates': [],
+        'safety_warning': 'Do not eat it.',
+        'photo_tips': '',
+    }
+
+    def photo(self, content_type='image/jpeg', size=64):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        return SimpleUploadedFile('photo.jpg', b'x' * size, content_type=content_type)
+
+    def reply(self, stop_reason='end_turn', text=None):
+        import json
+        from types import SimpleNamespace
+
+        block = SimpleNamespace(type='text', text=json.dumps(self.RESULT) if text is None else text)
+        return SimpleNamespace(stop_reason=stop_reason, content=[block])
+
+    def patch_claude(self, **kwargs):
+        """Replaces the Anthropic client; returns the patcher and the mocked create()."""
+        patcher = mock.patch('places.identify.anthropic.Anthropic')
+        create = patcher.start().return_value.with_options.return_value.beta.messages.create
+        create.configure_mock(**kwargs)
+        self.addCleanup(patcher.stop)
+        return create
+
+    def test_identifies_a_photo_and_sends_a_coarse_location(self):
+        create = self.patch_claude(return_value=self.reply())
+        response = self.client.post(
+            '/api/identify/', {'image': self.photo(), 'kind': 'plant', 'lat': '33.80951', 'lng': '-84.23944'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.RESULT)
+
+        request = create.call_args.kwargs
+        self.assertEqual(request['model'], 'claude-opus-5-5')
+        image, question = request['messages'][0]['content']
+        self.assertEqual(image['source']['media_type'], 'image/jpeg')
+        # Only one decimal place of the position leaves the server.
+        self.assertIn('latitude 33.8, longitude -84.2', question['text'])
+        self.assertNotIn('33.80951', question['text'])
+
+    def test_rejects_bad_uploads_without_calling_claude(self):
+        create = self.patch_claude()
+        post = lambda data: self.client.post('/api/identify/', data).status_code
+        self.assertEqual(post({'kind': 'plant'}), 400)
+        self.assertEqual(post({'image': self.photo(), 'kind': 'rock'}), 400)
+        self.assertEqual(post({'image': self.photo('application/pdf'), 'kind': 'plant'}), 400)
+        self.assertEqual(post({'image': self.photo(size=5 * 1024 * 1024 + 1), 'kind': 'track'}), 413)
+        create.assert_not_called()
+
+    def test_reports_refusals_and_unreadable_answers(self):
+        self.patch_claude(side_effect=[self.reply(stop_reason='refusal'), self.reply(text='not json')])
+        self.assertEqual(self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'}).status_code, 422)
+        self.assertEqual(self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'}).status_code, 502)
+
+    def test_explains_missing_credentials(self):
+        # No mock here: with no key in the environment the real SDK refuses before sending anything.
+        with mock.patch.dict('os.environ', clear=False) as env:
+            for name in ('ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_PROFILE'):
+                env.pop(name, None)
+            with mock.patch('anthropic._base_client.SyncAPIClient._request') as send:
+                response = self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'})
+        if not send.called:  # a machine with a stored login profile would get past the credential check
+            self.assertEqual(response.status_code, 503)
+            self.assertIn('ANTHROPIC_API_KEY', response.data['detail'])
+
+
 class NearestPlaceTests(APITestCase):
     def setUp(self):
         from . import pois
