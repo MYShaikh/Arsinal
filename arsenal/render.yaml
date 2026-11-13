@@ -5,7 +5,7 @@ services:
     runtime: python
     rootDir: arsenal
     plan: free
-    buildCommand: ./build.sh
+    buildCommand: bash build.sh
     startCommand: cd backend && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     healthCheckPath: /api/health/
     envVars:
