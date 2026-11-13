@@ -163,6 +163,11 @@ class PoiTests(APITestCase):
 
 
 class IdentifyTests(APITestCase):
+    def setUp(self):
+        from django.core.cache import cache
+
+        cache.clear()  # the Gemini endpoints are rate limited per visitor
+
     RESULT = {
         'subject': 'plant',
         'summary': 'Probably pokeweed.',
@@ -334,3 +339,73 @@ class WaterTests(APITestCase):
     def test_validates_input(self):
         self.assertEqual(self.client.get('/api/water/nearest/').status_code, 400)
         self.assertEqual(self.client.get('/api/water/nearest/', {'lat': 95, 'lng': 0}).status_code, 400)
+
+
+class WildlifeTests(APITestCase):
+    ANSWER = {
+        'region': 'Georgia, United States',
+        'animals': [
+            {
+                'common_name': 'Eastern diamondback rattlesnake', 'scientific_name': 'Crotalus adamanteus',
+                'category': 'venomous', 'risk': 'Venomous bite.', 'precaution': 'Keep away.',
+                'wikipedia_title': 'Eastern diamondback rattlesnake',
+            },
+            {
+                'common_name': 'American alligator', 'scientific_name': 'Alligator mississippiensis',
+                'category': 'dangerous', 'risk': 'Can bite.', 'precaution': 'Stay back from water.',
+                'wikipedia_title': 'Missing page',
+            },
+        ],
+    }
+
+    def setUp(self):
+        from django.core.cache import cache
+
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+    def patch(self):
+        answer = mock.patch('places.wildlife.generate_json', return_value=self.ANSWER)
+        self.generate = answer.start()
+        self.addCleanup(answer.stop)
+
+        def get(url, **kwargs):
+            found = 'Missing' not in url and 'Alligator' not in url
+            reply = mock.Mock(status_code=200 if found else 404)
+            reply.json.return_value = {
+                'thumbnail': {'source': 'https://upload.wikimedia.org/x.jpg'},
+                'content_urls': {'desktop': {'page': 'https://en.wikipedia.org/wiki/X'}},
+            }
+            return reply
+
+        http = mock.patch('places.wildlife.requests.get', side_effect=get)
+        http.start()
+        self.addCleanup(http.stop)
+
+    def test_lists_animals_with_pictures_and_caches_by_area(self):
+        self.patch()
+        response = self.client.get('/api/wildlife/', {'lat': '33.81', 'lng': '-84.24'})
+        self.assertEqual(response.status_code, 200)
+        snake, gator = response.data['animals']
+        self.assertEqual(snake['image_url'], 'https://upload.wikimedia.org/x.jpg')
+        self.assertIsNone(gator['image_url'])  # no article found, so the card simply has no picture
+        # A nearby point in the same 0.5-degree cell is answered from the cache.
+        self.client.get('/api/wildlife/', {'lat': '33.9', 'lng': '-84.2'})
+        self.assertEqual(self.generate.call_count, 1)
+        self.assertIn('latitude 34.0', self.generate.call_args.args[1][0])
+
+    def test_needs_a_location(self):
+        self.patch()
+        self.assertEqual(self.client.get('/api/wildlife/').status_code, 400)
+        self.generate.assert_not_called()
+
+
+class ThrottleTests(APITestCase):
+    def test_gemini_endpoints_are_rate_limited_per_visitor(self):
+        from django.core.cache import cache
+
+        cache.clear()
+        self.addCleanup(cache.clear)
+        codes = [self.client.get('/api/wildlife/').status_code for _ in range(22)]
+        self.assertEqual(codes[:20], [400] * 20)  # counted even when the request is rejected
+        self.assertEqual(codes[20], 429)

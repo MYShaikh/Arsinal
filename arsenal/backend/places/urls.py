@@ -15,6 +15,7 @@ urlpatterns = [
     path('water/nearest/', views.nearest_water),
     path('nearest/', views.nearest_place),
     path('identify/', views.identify_photo),
+    path('wildlife/', views.wildlife_nearby),
     path('recents/clear/', views.RecentSearchViewSet.as_view({'delete': 'clear'})),
     *router.urls,
 ]

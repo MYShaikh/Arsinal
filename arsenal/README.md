@@ -22,10 +22,11 @@ arsenal/
 - **Nearest tab** (sidebar): pick Walk or Drive, then a type (hospital, pharmacy, grocery store, ammunition shop,
   flowing water, nuclear power plant). Arsenal finds the closest one (`/api/nearest/`) and routes to it. If Google
   cannot route (for example the Routes API is not enabled), it draws a straight line with distance and compass direction.
-- **Identify tab** (sidebar): take or choose a photo of a plant, berry, fungus or animal track. Django sends it to
-  Google Gemini (`/api/identify/`), which returns the likely species with its reasoning and, for plants, edibility,
-  toxicity, reported medicinal uses and dangerous look-alikes. Uses the Google key (see below). An AI guess from
-  one photo can be wrong: never eat or self-medicate on this result alone.
+- **Identify tab** (sidebar): take or choose a photo of a plant, berry or fungus. Django sends it to Google Gemini
+  (`/api/identify/`), which returns the likely species with edibility, toxicity, reported medicinal uses and dangerous
+  look-alikes. The **Dangerous animals** option lists the dangerous, venomous and poisonous animals near you (or the
+  map centre) with a Wikipedia picture of each (`/api/wildlife/`). An AI guess can be wrong: never eat or
+  self-medicate on it alone.
 - **Nuclear plant alert**: a red banner, three beeps and a vibration whenever your position comes within 100 m of a
   plant's mapped centre point. It clears once you are more than 120 m away.
 - **Simulate my location**: every place card has a link to pretend you are standing there, for trying the alert and
@@ -78,6 +79,15 @@ npm start
 ```
 
 Without a key the app still starts and shows a setup screen instead of the map.
+
+## Deploy (Render)
+
+`render.yaml` describes one web service: Django serves the built Angular app and the API from the same address
+(`build.sh` builds both). In Render choose New, Blueprint, select this repository, then fill in `GOOGLE_MAPS_API_KEY`
+and `GEMINI_API_KEY`. Afterwards restrict the Maps key to `https://<your-service>.onrender.com/*`.
+
+The free plan sleeps when idle and its SQLite database is wiped on each restart, so saved places do not persist.
+The Gemini features are limited to 20 requests per hour per visitor (`ARSENAL_AI_RATE`).
 
 ## API
 

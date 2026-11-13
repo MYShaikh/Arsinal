@@ -93,25 +93,28 @@ _QUESTIONS = {
 
 def identify(image_bytes, media_type, kind, location=None):
     """Returns the structured identification as a dict, or raises IdentifyError."""
+    question = _QUESTIONS[kind]
+    if location:
+        # Rounded to about 10 km: enough to know the region's species without sending an exact position.
+        question += f' The photo was taken near latitude {location[0]:.1f}, longitude {location[1]:.1f}.'
+    contents = [types.Part.from_bytes(data=image_bytes, mime_type=media_type), question]
+    return generate_json(SYSTEM_PROMPT, contents, RESULT_SCHEMA)
+
+
+def generate_json(system, contents, schema):
+    """Asks Gemini for an answer matching `schema` and returns it as a dict, or raises IdentifyError."""
     # GEMINI_API_KEY wins; otherwise the Google Maps key is reused (the Generative Language API must be enabled on it).
     api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_MAPS_API_KEY')
     if not api_key:
         raise IdentifyError(NOT_SET_UP, 503)
 
-    question = _QUESTIONS[kind]
-    if location:
-        # Rounded to about 10 km: enough to know the region's species without sending an exact position.
-        question += f' The photo was taken near latitude {location[0]:.1f}, longitude {location[1]:.1f}.'
-
     client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=120_000))
     config = types.GenerateContentConfig(
-        system_instruction=SYSTEM_PROMPT,
+        system_instruction=system,
         response_mime_type='application/json',
-        response_json_schema=RESULT_SCHEMA,
+        response_json_schema=schema,
         max_output_tokens=16000,
     )
-    contents = [types.Part.from_bytes(data=image_bytes, mime_type=media_type), question]
-
     models = (os.environ['GEMINI_MODEL'],) if os.environ.get('GEMINI_MODEL') else MODELS
     response = None
     for index, model in enumerate(models):
@@ -125,6 +128,13 @@ def identify(image_bytes, media_type, kind, location=None):
                 raise IdentifyError('The Gemini API key was rejected. Check GEMINI_API_KEY.', 503) from error
             if error.code == 429:
                 raise IdentifyError('Too many identification requests. Wait a moment and try again.', 429) from error
+            if error.code == 403:
+                reason = str(getattr(error, 'message', '') or error)[:300]
+                raise IdentifyError(
+                    f'Google refused the request (403): {reason} '
+                    'Enable the Generative Language API for the project that owns the key, and allow it on the key.',
+                    503,
+                ) from error
             raise IdentifyError(f'The identification service returned an error ({error.code}).', 502) from error
         except errors.ServerError as error:
             raise IdentifyError(f'The identification service returned an error ({error.code}).', 502) from error

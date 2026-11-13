@@ -6,6 +6,7 @@ import { API_BASE } from '../config';
 import { Edibility, IdentifyKind, IdentifyResult } from '../models';
 import { MapService } from '../services/map.service';
 import { IconComponent } from './icon.component';
+import { WildlifeComponent } from './wildlife.component';
 
 const EDIBILITY: Record<Edibility, { label: string; tone: 'good' | 'warn' | 'bad' | 'neutral' } | null> = {
   edible: { label: 'Reported edible if correctly identified', tone: 'good' },
@@ -22,17 +23,20 @@ const MAX_SIDE = 1568;
 /** Photo identification: an animal track, or a plant, berry or fungus with what is known about eating it. */
 @Component({
   selector: 'app-identify',
-  imports: [IconComponent],
+  imports: [IconComponent, WildlifeComponent],
   template: `
-    <div class="kinds" role="radiogroup" aria-label="What the photo shows">
-      <button type="button" role="radio" [class.sel]="kind() === 'plant'" [attr.aria-checked]="kind() === 'plant'" (click)="setKind('plant')">
+    <div class="kinds" role="radiogroup" aria-label="What to look up">
+      <button type="button" role="radio" [class.sel]="mode() === 'plant'" [attr.aria-checked]="mode() === 'plant'" (click)="mode.set('plant')">
         Plant or berry
       </button>
-      <button type="button" role="radio" [class.sel]="kind() === 'track'" [attr.aria-checked]="kind() === 'track'" (click)="setKind('track')">
-        Animal track
+      <button type="button" role="radio" [class.sel]="mode() === 'animals'" [attr.aria-checked]="mode() === 'animals'" (click)="mode.set('animals')">
+        Dangerous animals
       </button>
     </div>
 
+    @if (mode() === 'animals') {
+      <app-wildlife />
+    } @else {
     <div class="pick">
       <label class="btn">
         <app-icon name="camera" [size]="20" /> Take photo
@@ -116,10 +120,11 @@ const MAX_SIDE = 1568;
       </section>
     }
 
-    <p class="disclaimer">
-      This is an AI's best guess from one photo and it can be wrong. Never eat anything, or use it as medicine, on the
-      strength of this result alone. Photos are sent to Google's Gemini for analysis.
-    </p>
+      <p class="disclaimer">
+        This is an AI's best guess from one photo and it can be wrong. Never eat anything, or use it as medicine, on the
+        strength of this result alone. Photos are sent to Google's Gemini for analysis.
+      </p>
+    }
   `,
   styles: `
     .kinds,
@@ -326,6 +331,7 @@ export class IdentifyComponent implements OnDestroy {
   private readonly http = inject(HttpClient);
   protected readonly maps = inject(MapService);
 
+  protected readonly mode = signal<'plant' | 'animals'>('plant');
   protected readonly kind = signal<IdentifyKind>('plant');
   protected readonly preview = signal('');
   protected readonly useLocation = signal(true);

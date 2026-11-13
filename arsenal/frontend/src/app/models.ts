@@ -99,6 +99,24 @@ export interface IdentifyResult {
   photo_tips: string;
 }
 
+export type AnimalCategory = 'dangerous' | 'venomous' | 'poisonous';
+
+export interface WildlifeAnimal {
+  common_name: string;
+  scientific_name: string;
+  category: AnimalCategory;
+  risk: string;
+  precaution: string;
+  image_url: string | null;
+  page_url: string | null;
+}
+
+/** Dangerous, venomous and poisonous animals near a point, as answered by Django. */
+export interface WildlifeResult {
+  region: string;
+  animals: WildlifeAnimal[];
+}
+
 export interface SavedPlace {
   id: number;
   name: string;

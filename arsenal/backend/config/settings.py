@@ -27,6 +27,12 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-only-chang
 DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Render tells the service its public hostname.
+RENDER_HOST = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_HOST}']
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -45,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -120,6 +127,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# In production Django also serves the built Angular app (frontend/dist/frontend/browser) from the site root.
+FRONTEND_DIST = BASE_DIR.parent / 'frontend' / 'dist' / 'frontend' / 'browser'
+if FRONTEND_DIST.is_dir():
+    WHITENOISE_ROOT = FRONTEND_DIST
+    WHITENOISE_INDEX_FILE = True
 
 
 # Email
@@ -138,6 +152,9 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     'ARSENAL_FRONTEND_ORIGINS', 'http://localhost:4200,http://127.0.0.1:4200'
 ).split(',')
 
+# The Gemini-backed endpoints cost money per call, so each visitor (IP address) is limited.
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+    'DEFAULT_THROTTLE_RATES': {'ai': os.environ.get('ARSENAL_AI_RATE', '20/hour'), 'api': '600/hour'},
+    'NUM_PROXIES': 1 if RENDER_HOST else 0,
 }

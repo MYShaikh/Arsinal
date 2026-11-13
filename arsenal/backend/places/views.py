@@ -1,9 +1,10 @@
 from django.conf import settings
 from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 
-from . import identify, nuclear, pois, water
+from . import identify, nuclear, pois, water, wildlife
 from .overpass import OverpassError
 from .models import RecentSearch, SavedPlace
 from .serializers import RecentSearchSerializer, SavedPlaceSerializer
@@ -41,6 +42,12 @@ def poi_tile(request, x, y):
         return Response(pois.fetch_tile(x, y))
     except OverpassError:
         return Response(OSM_BUSY, status=status.HTTP_502_BAD_GATEWAY)
+
+
+class AiThrottle(AnonRateThrottle):
+    """Limits the endpoints that call Gemini, which cost money per request."""
+
+    scope = 'ai'
 
 
 def _point(request):
@@ -86,6 +93,7 @@ def nearest_place(request):
 
 
 @api_view(['POST'])
+@throttle_classes([AiThrottle])
 def identify_photo(request):
     """Identifies an animal track or plant from an uploaded photo (multipart: image, kind, optional lat/lng)."""
     image = request.FILES.get('image')
@@ -110,6 +118,19 @@ def identify_photo(request):
 
     try:
         return Response(identify.identify(image.read(), image.content_type, kind, location))
+    except identify.IdentifyError as error:
+        return Response({'detail': str(error)}, status=error.status)
+
+
+@api_view(['GET'])
+@throttle_classes([AiThrottle])
+def wildlife_nearby(request):
+    """Dangerous, venomous and poisonous animals near ?lat=&lng=, each with a Wikipedia picture."""
+    point = _point(request)
+    if isinstance(point, Response):
+        return point
+    try:
+        return Response(wildlife.nearby(*point))
     except identify.IdentifyError as error:
         return Response({'detail': str(error)}, status=error.status)
 
