@@ -67,6 +67,10 @@
               "buildTarget": "frontend:build:development"
             }
           },
+          "options": {
+            "proxyConfig": "proxy.conf.json",
+            "allowedHosts": [".trycloudflare.com", ".ngrok-free.app", ".ngrok-free.dev", ".loca.lt", ".lhr.life", ".localhost.run"]
+          },
           "defaultConfiguration": "development"
         },
         "test": {

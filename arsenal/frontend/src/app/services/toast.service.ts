@@ -5,7 +5,12 @@ export class ToastService {
   readonly message = signal('');
   private timer?: ReturnType<typeof setTimeout>;
 
-  show(message: string, ms = 4000) {
+  dismiss() {
+    clearTimeout(this.timer);
+    this.message.set('');
+  }
+
+  show(message: string, ms = 15000) {
     this.message.set(message);
     clearTimeout(this.timer);
     this.timer = setTimeout(() => this.message.set(''), ms);

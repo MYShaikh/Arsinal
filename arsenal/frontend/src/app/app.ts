@@ -24,7 +24,7 @@ import { ToastService } from './services/toast.service';
     <app-sidebar />
     <app-map />
     @if (toast.message(); as message) {
-      <div class="toast" role="status">{{ message }}</div>
+      <div class="toast" role="status" (click)="toast.dismiss()">{{ message }}</div>
     }
   `,
   styles: `

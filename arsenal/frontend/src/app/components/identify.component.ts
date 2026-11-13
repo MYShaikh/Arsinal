@@ -118,7 +118,7 @@ const MAX_SIDE = 1568;
 
     <p class="disclaimer">
       This is an AI's best guess from one photo and it can be wrong. Never eat anything, or use it as medicine, on the
-      strength of this result alone. Photos are sent to Anthropic's Claude for analysis.
+      strength of this result alone. Photos are sent to Google's Gemini for analysis.
     </p>
   `,
   styles: `

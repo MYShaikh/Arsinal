@@ -1,4 +1,2 @@
-import { isDevMode } from '@angular/core';
-
-/** Django API. In production the API is expected to be served from the same origin under /api. */
-export const API_BASE = isDevMode() ? 'http://localhost:8000/api' : '/api';
+/** Django API. Always same-origin: `ng serve` forwards /api to Django (proxy.conf.json), so phones can use it too. */
+export const API_BASE = '/api';

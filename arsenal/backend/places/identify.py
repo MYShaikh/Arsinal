@@ -1,14 +1,16 @@
-"""Identifies an animal track or a plant from a photo with Claude's vision, and reports what is known about it."""
-import base64
+"""Identifies an animal track or a plant from a photo with Google Gemini's vision, and reports what is known about it."""
 import json
+import os
 
-import anthropic
+from google import genai
+from google.genai import errors, types
 
-MODEL = 'claude-opus-5-5'
-MAX_IMAGE_BYTES = 5 * 1024 * 1024  # the API's per-image limit
+# Tried in order; GEMINI_MODEL overrides. A model that Google has retired answers 404, so the next one is tried.
+MODELS = ('gemini-3.6-flash', 'gemini-2.5-flash')
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
 MEDIA_TYPES = ('image/jpeg', 'image/png', 'image/webp', 'image/gif')
 KINDS = ('track', 'plant')
-NOT_SET_UP = 'Photo identification is not set up. Set ANTHROPIC_API_KEY for the Arsenal backend and restart it.'
+NOT_SET_UP = 'Photo identification is not set up. Set GOOGLE_MAPS_API_KEY (or GEMINI_API_KEY) for the Arsenal backend and restart it.'
 
 
 class IdentifyError(Exception):
@@ -68,7 +70,6 @@ _CANDIDATE = {
         'common_name', 'scientific_name', 'likelihood', 'reasoning', 'dangerous_to_humans',
         'edibility', 'toxicity', 'medicinal_uses', 'lookalikes',
     ],
-    'additionalProperties': False,
 }
 
 RESULT_SCHEMA = {
@@ -82,7 +83,6 @@ RESULT_SCHEMA = {
         'photo_tips': {'type': 'string', 'description': 'How a better photo would improve the answer, or empty.'},
     },
     'required': ['subject', 'summary', 'confidence', 'candidates', 'safety_warning', 'photo_tips'],
-    'additionalProperties': False,
 }
 
 _QUESTIONS = {
@@ -93,58 +93,57 @@ _QUESTIONS = {
 
 def identify(image_bytes, media_type, kind, location=None):
     """Returns the structured identification as a dict, or raises IdentifyError."""
+    # GEMINI_API_KEY wins; otherwise the Google Maps key is reused (the Generative Language API must be enabled on it).
+    api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_MAPS_API_KEY')
+    if not api_key:
+        raise IdentifyError(NOT_SET_UP, 503)
+
     question = _QUESTIONS[kind]
     if location:
         # Rounded to about 10 km: enough to know the region's species without sending an exact position.
         question += f' The photo was taken near latitude {location[0]:.1f}, longitude {location[1]:.1f}.'
 
-    try:
-        response = anthropic.Anthropic().with_options(timeout=120.0).beta.messages.create(
-            model=MODEL,
-            max_tokens=16000,
-            system=SYSTEM_PROMPT,
-            # If a safety classifier declines the request, the API retries it on another model in the same call.
-            betas=['server-side-fallback-2026-07-01'],
-            fallbacks='default',
-            output_config={'effort': 'medium', 'format': {'type': 'json_schema', 'schema': RESULT_SCHEMA}},
-            messages=[{
-                'role': 'user',
-                'content': [
-                    {
-                        'type': 'image',
-                        'source': {
-                            'type': 'base64',
-                            'media_type': media_type,
-                            'data': base64.standard_b64encode(image_bytes).decode('ascii'),
-                        },
-                    },
-                    {'type': 'text', 'text': question},
-                ],
-            }],
-        )
-    except anthropic.AuthenticationError as error:
-        raise IdentifyError('The Anthropic API key was rejected. Check ANTHROPIC_API_KEY.', 503) from error
-    except anthropic.RateLimitError as error:
-        raise IdentifyError('Too many identification requests. Wait a moment and try again.', 429) from error
-    except anthropic.APIStatusError as error:
-        raise IdentifyError(f'The identification service returned an error ({error.status_code}).', 502) from error
-    except anthropic.APIConnectionError as error:
-        raise IdentifyError('Could not reach the identification service. Check the connection.', 502) from error
-    except anthropic.AnthropicError as error:
-        raise IdentifyError(NOT_SET_UP, 503) from error
-    except TypeError as error:
-        # With no credentials configured, the SDK raises a plain TypeError before sending anything.
-        if 'authentication method' not in str(error):
-            raise
-        raise IdentifyError(NOT_SET_UP, 503) from error
+    client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=120_000))
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM_PROMPT,
+        response_mime_type='application/json',
+        response_json_schema=RESULT_SCHEMA,
+        max_output_tokens=16000,
+    )
+    contents = [types.Part.from_bytes(data=image_bytes, mime_type=media_type), question]
 
-    if response.stop_reason == 'refusal':
+    models = (os.environ['GEMINI_MODEL'],) if os.environ.get('GEMINI_MODEL') else MODELS
+    response = None
+    for index, model in enumerate(models):
+        try:
+            response = client.models.generate_content(model=model, contents=contents, config=config)
+            break
+        except errors.ClientError as error:
+            if error.code == 404 and index < len(models) - 1:
+                continue
+            if error.code in (400, 401, 403) and 'API key' in str(error):
+                raise IdentifyError('The Gemini API key was rejected. Check GEMINI_API_KEY.', 503) from error
+            if error.code == 429:
+                raise IdentifyError('Too many identification requests. Wait a moment and try again.', 429) from error
+            raise IdentifyError(f'The identification service returned an error ({error.code}).', 502) from error
+        except errors.ServerError as error:
+            raise IdentifyError(f'The identification service returned an error ({error.code}).', 502) from error
+        except errors.APIError as error:
+            raise IdentifyError(f'The identification service returned an error ({error.code}).', 502) from error
+        except Exception as error:  # network failures surface as httpx errors
+            raise IdentifyError('Could not reach the identification service. Check the connection.', 502) from error
+
+    feedback = response.prompt_feedback
+    if feedback and feedback.block_reason:
         raise IdentifyError('This photo could not be analysed. Try a different photo.', 422)
-    if response.stop_reason == 'max_tokens':
+    candidate = response.candidates[0] if response.candidates else None
+    reason = candidate.finish_reason.name if candidate and candidate.finish_reason else 'STOP'
+    if reason == 'MAX_TOKENS':
         raise IdentifyError('The identification was cut short. Try again.', 502)
+    if reason not in ('STOP', 'FINISH_REASON_UNSPECIFIED'):
+        raise IdentifyError('This photo could not be analysed. Try a different photo.', 422)
 
-    text = next((block.text for block in response.content if block.type == 'text'), None)
     try:
-        return json.loads(text)
-    except (TypeError, json.JSONDecodeError) as error:
+        return json.loads(response.text)
+    except (TypeError, ValueError) as error:
         raise IdentifyError('The identification service gave an unreadable answer. Try again.', 502) from error

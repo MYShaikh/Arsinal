@@ -23,8 +23,8 @@ arsenal/
   flowing water, nuclear power plant). Arsenal finds the closest one (`/api/nearest/`) and routes to it. If Google
   cannot route (for example the Routes API is not enabled), it draws a straight line with distance and compass direction.
 - **Identify tab** (sidebar): take or choose a photo of a plant, berry, fungus or animal track. Django sends it to
-  Claude (`/api/identify/`), which returns the likely species with its reasoning and, for plants, edibility,
-  toxicity, reported medicinal uses and dangerous look-alikes. Needs `ANTHROPIC_API_KEY` (see below). An AI guess from
+  Google Gemini (`/api/identify/`), which returns the likely species with its reasoning and, for plants, edibility,
+  toxicity, reported medicinal uses and dangerous look-alikes. Uses the Google key (see below). An AI guess from
   one photo can be wrong: never eat or self-medicate on this result alone.
 - **Nuclear plant alert**: a red banner, three beeps and a vibration whenever your position comes within 100 m of a
   plant's mapped centre point. It clears once you are more than 120 m away.
@@ -50,17 +50,11 @@ Create a key in Google Cloud and enable these APIs on the project (billing must 
 
 Restrict the key to your site (HTTP referrers, e.g. `http://localhost:4200/*`), because the browser receives it.
 
-## Anthropic API key (photo identification only)
+## Photo identification (Gemini)
 
-The Identify tab needs an Anthropic API key from https://console.anthropic.com (API keys). Set it in the backend
-terminal before `runserver`, next to the Google key:
-
-```powershell
-$env:ANTHROPIC_API_KEY = "your-key"
-```
-
-The key stays on the server; the browser never receives it. Each identification is a paid API call. Everything else
-in Arsenal works without this key.
+The Identify tab uses Google Gemini with the same `GOOGLE_MAPS_API_KEY`, so there is nothing extra to set. Enable the
+**Generative Language API** on the same Google Cloud project (and allow it on the key if the key is restricted).
+To use a separate key instead, set `GEMINI_API_KEY`; optionally set `GEMINI_MODEL` to pick a model.
 
 ## Run it
 
@@ -105,7 +99,7 @@ cd arsenal/frontend; npm test -- --watch=false
 
 ## Configuration
 
-Backend environment variables: `GOOGLE_MAPS_API_KEY`, `ANTHROPIC_API_KEY` (optional, for the Identify tab), `DJANGO_SECRET_KEY`, `DJANGO_DEBUG` (`1` by default; set `0` in
+Backend environment variables: `GOOGLE_MAPS_API_KEY`, `GEMINI_API_KEY` (optional, for the Identify tab), `GEMINI_MODEL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG` (`1` by default; set `0` in
 production), `DJANGO_ALLOWED_HOSTS`, `ARSENAL_FRONTEND_ORIGINS` (CORS origins, comma separated).
 
 The API has no authentication, so all visitors share one set of saved places. Add login before exposing it publicly.

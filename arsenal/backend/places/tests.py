@@ -177,61 +177,76 @@ class IdentifyTests(APITestCase):
 
         return SimpleUploadedFile('photo.jpg', b'x' * size, content_type=content_type)
 
-    def reply(self, stop_reason='end_turn', text=None):
+    def reply(self, finish='STOP', text=None, blocked=False):
         import json
         from types import SimpleNamespace
 
-        block = SimpleNamespace(type='text', text=json.dumps(self.RESULT) if text is None else text)
-        return SimpleNamespace(stop_reason=stop_reason, content=[block])
+        return SimpleNamespace(
+            text=json.dumps(self.RESULT) if text is None else text,
+            prompt_feedback=SimpleNamespace(block_reason='SAFETY' if blocked else None),
+            candidates=[SimpleNamespace(finish_reason=SimpleNamespace(name=finish))],
+        )
 
-    def patch_claude(self, **kwargs):
-        """Replaces the Anthropic client; returns the patcher and the mocked create()."""
-        patcher = mock.patch('places.identify.anthropic.Anthropic')
-        create = patcher.start().return_value.with_options.return_value.beta.messages.create
-        create.configure_mock(**kwargs)
+    def patch_gemini(self, **kwargs):
+        """Replaces the Gemini client; returns the mocked generate_content()."""
+        patcher = mock.patch('places.identify.genai.Client')
+        generate = patcher.start().return_value.models.generate_content
+        generate.configure_mock(**kwargs)
         self.addCleanup(patcher.stop)
-        return create
+        env = mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'test-key'})
+        env.start()
+        self.addCleanup(env.stop)
+        return generate
 
     def test_identifies_a_photo_and_sends_a_coarse_location(self):
-        create = self.patch_claude(return_value=self.reply())
+        generate = self.patch_gemini(return_value=self.reply())
         response = self.client.post(
             '/api/identify/', {'image': self.photo(), 'kind': 'plant', 'lat': '33.80951', 'lng': '-84.23944'}
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.RESULT)
 
-        request = create.call_args.kwargs
-        self.assertEqual(request['model'], 'claude-opus-5-5')
-        image, question = request['messages'][0]['content']
-        self.assertEqual(image['source']['media_type'], 'image/jpeg')
+        request = generate.call_args.kwargs
+        image, question = request['contents']
+        self.assertEqual(image.inline_data.mime_type, 'image/jpeg')
         # Only one decimal place of the position leaves the server.
-        self.assertIn('latitude 33.8, longitude -84.2', question['text'])
-        self.assertNotIn('33.80951', question['text'])
+        self.assertIn('latitude 33.8, longitude -84.2', question)
+        self.assertNotIn('33.80951', question)
 
-    def test_rejects_bad_uploads_without_calling_claude(self):
-        create = self.patch_claude()
+    def test_rejects_bad_uploads_without_calling_gemini(self):
+        generate = self.patch_gemini()
         post = lambda data: self.client.post('/api/identify/', data).status_code
         self.assertEqual(post({'kind': 'plant'}), 400)
         self.assertEqual(post({'image': self.photo(), 'kind': 'rock'}), 400)
         self.assertEqual(post({'image': self.photo('application/pdf'), 'kind': 'plant'}), 400)
         self.assertEqual(post({'image': self.photo(size=5 * 1024 * 1024 + 1), 'kind': 'track'}), 413)
-        create.assert_not_called()
+        generate.assert_not_called()
 
-    def test_reports_refusals_and_unreadable_answers(self):
-        self.patch_claude(side_effect=[self.reply(stop_reason='refusal'), self.reply(text='not json')])
-        self.assertEqual(self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'}).status_code, 422)
-        self.assertEqual(self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'}).status_code, 502)
+    def test_reports_blocked_photos_and_unreadable_answers(self):
+        self.patch_gemini(side_effect=[self.reply(blocked=True), self.reply(finish='SAFETY'), self.reply(text='not json')])
+        post = lambda: self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'}).status_code
+        self.assertEqual(post(), 422)
+        self.assertEqual(post(), 422)
+        self.assertEqual(post(), 502)
+
+    def test_falls_back_to_the_next_model_when_one_is_retired(self):
+        from google.genai import errors
+
+        retired = errors.ClientError(404, {'error': {'message': 'model not found'}})
+        generate = self.patch_gemini(side_effect=[retired, self.reply()])
+        response = self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'plant'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(generate.call_count, 2)
 
     def test_explains_missing_credentials(self):
-        # No mock here: with no key in the environment the real SDK refuses before sending anything.
-        with mock.patch.dict('os.environ', clear=False) as env:
-            for name in ('ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_PROFILE'):
-                env.pop(name, None)
-            with mock.patch('anthropic._base_client.SyncAPIClient._request') as send:
-                response = self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'})
-        if not send.called:  # a machine with a stored login profile would get past the credential check
-            self.assertEqual(response.status_code, 503)
-            self.assertIn('ANTHROPIC_API_KEY', response.data['detail'])
+        with mock.patch.dict('os.environ'):
+            import os
+
+            os.environ.pop('GEMINI_API_KEY', None)
+            os.environ.pop('GOOGLE_MAPS_API_KEY', None)
+            response = self.client.post('/api/identify/', {'image': self.photo(), 'kind': 'track'})
+        self.assertEqual(response.status_code, 503)
+        self.assertIn('GOOGLE_MAPS_API_KEY', response.data['detail'])
 
 
 class NearestPlaceTests(APITestCase):
